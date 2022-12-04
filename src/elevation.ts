@@ -9,7 +9,7 @@ type Coords = {
 };
 
 const mapsLoader = new Loader({
-  apiKey: 'secret'
+  apiKey: 'AIzaSyD7060QClt8EcAYTeuZfz0_1Ub9JGuYa70'
 });
 
 const mapsLoaderPromise = mapsLoader.load();
@@ -38,7 +38,7 @@ const getElevationsBatched = async (locations: Coords[]) => {
     const results = res.results.map(result => result.elevation);
     elevations.push(...results);
     i += BATCH_SIZE;
-    // await timer(5000);
+    await timer(5000);
   }
   return elevations;
 };
