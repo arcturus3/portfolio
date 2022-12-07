@@ -124,6 +124,31 @@ vertices.needsUpdate = true;
 // });
 // terrainMaterial.extensions.derivatives = true;
 
+
+// const wireframeMaterial = new THREE.ShaderMaterial({
+//   vertexShader: `
+//     varying vec4 fragColor;
+//     void main() {
+//       vec4 eyePosition = modelViewMatrix * vec4(position, 1.0);
+//       gl_Position = projectionMatrix * eyePosition;
+
+//       gl_PointSize = 
+//       gl_PointSize = 5.;
+//       fragColor = vec4(1.0, 0, 0, 1.0);
+//     }
+//   `,
+//   fragmentShader: `
+//     varying vec4 fragColor;
+//     void main() {
+//       gl_FragColor = fragColor;
+//     }
+//   `,
+//   side: THREE.DoubleSide,
+//   alphaToCoverage: true
+// });
+// wireframeMaterial.extensions.derivatives = true;
+
+
 const terrainMaterial = new THREE.MeshStandardMaterial({
   color: 0x101010,
   flatShading: false,
@@ -149,28 +174,39 @@ light.position.x = 10;
 light.position.y = 10;
 
 
-scene.add(light);
+// scene.add(light);
 
 const normals = new VertexNormalsHelper(terrain);
 // scene.add(normals);
 
 
-// const wireframeGeometry = new THREE.WireframeGeometry(terrainGeometry);
-// const wireframeMaterial = new THREE.LineBasicMaterial({
-//   color: 0x444444,
-//   opacity: 0.5,
-//   alphaToCoverage: true
-// });
-// const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
-// terrain.add(wireframe);
+const wireframeGeometry = new THREE.WireframeGeometry(terrainGeometry);
+const wireframeMaterial = new THREE.LineBasicMaterial({
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.05,
+});
+const wireframe = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+wireframe.renderOrder = 1;
+terrain.add(wireframe);
 
 const wireframeGeometry2 = terrainGeometry;
 const wireframeMaterial2 = new THREE.PointsMaterial({
-  size: 0.004,
-  color: 0x444444,
+  // size: 0.005,
+  // opacity: 0.05,
+  size: 0.001,
+  color: 0xffffff,
+  transparent: true,
+  opacity: 0.2,
 });
 const wireframe2 = new THREE.Points(wireframeGeometry2, wireframeMaterial2);
+wireframe2.renderOrder = 0;
 terrain.add(wireframe2);
+
+// const wireframeGeometry2 = terrainGeometry;
+// const wireframeMaterial2 = wireframeMaterial;
+// const wireframe2 = new THREE.Points(wireframeGeometry2, wireframeMaterial2);
+// terrain.add(wireframe2);
 
 
 
