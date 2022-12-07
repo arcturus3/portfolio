@@ -38,7 +38,7 @@ const getElevationsBatched = async (locations: Coords[]) => {
     const results = res.results.map(result => result.elevation);
     elevations.push(...results);
     i += BATCH_SIZE;
-    await timer(5000);
+    // await timer(5000);
   }
   return elevations;
 };
