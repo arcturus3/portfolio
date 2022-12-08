@@ -91,63 +91,6 @@ for (let i = 0; i < vertices.count; i++) {
 }
 vertices.needsUpdate = true;
 
-// const terrainMaterial = new MeshBasicMaterial({
-//   color: 0x000000,
-//   polygonOffset: true,
-//   polygonOffsetFactor: 1,
-//   polygonOffsetUnits: 1,
-// });
-
-// const terrainMaterial = new THREE.ShaderMaterial({
-//   uniforms: {'thickness': 1},
-//   vertexShader: `
-//     attribute vec3 center;
-//     varying vec3 vCenter;
-//     void main() {
-//       vCenter = center;
-//       gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-//     }
-//   `,
-//   fragmentShader: `
-//     uniform float thickness;
-//     varying vec3 vCenter;
-//     void main() {
-//       vec3 afwidth = fwidth( vCenter.xyz );
-//       vec3 edge3 = smoothstep( ( thickness - 1.0 ) * afwidth, thickness * afwidth, vCenter.xyz );
-//       float edge = 1.0 - min( min( edge3.x, edge3.y ), edge3.z );
-//       gl_FragColor.rgb = gl_FrontFacing ? vec3( 0.9, 0.9, 1.0 ) : vec3( 0.4, 0.4, 0.5 );
-//       gl_FragColor.a = edge;
-//     }
-//   `,
-//   side: THREE.DoubleSide,
-//   alphaToCoverage: true
-// });
-// terrainMaterial.extensions.derivatives = true;
-
-
-// const wireframeMaterial = new THREE.ShaderMaterial({
-//   vertexShader: `
-//     varying vec4 fragColor;
-//     void main() {
-//       vec4 eyePosition = modelViewMatrix * vec4(position, 1.0);
-//       gl_Position = projectionMatrix * eyePosition;
-
-//       gl_PointSize = 
-//       gl_PointSize = 5.;
-//       fragColor = vec4(1.0, 0, 0, 1.0);
-//     }
-//   `,
-//   fragmentShader: `
-//     varying vec4 fragColor;
-//     void main() {
-//       gl_FragColor = fragColor;
-//     }
-//   `,
-//   side: THREE.DoubleSide,
-//   alphaToCoverage: true
-// });
-// wireframeMaterial.extensions.derivatives = true;
-
 
 const terrainMaterial = new THREE.MeshStandardMaterial({
   color: 0x101010,
@@ -161,8 +104,10 @@ const terrainMaterial = new THREE.MeshStandardMaterial({
 
 terrainGeometry.computeVertexNormals();
 terrainGeometry.normalizeNormals();
-
 const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+const normals = new VertexNormalsHelper(terrain);
+// scene.add(normals);
+
 
 
 scene.add(terrain);
@@ -172,12 +117,8 @@ const light = new THREE.PointLight();
 light.power = 20;
 light.position.x = 10;
 light.position.y = 10;
-
-
 // scene.add(light);
 
-const normals = new VertexNormalsHelper(terrain);
-// scene.add(normals);
 
 
 const wireframeGeometry = new THREE.WireframeGeometry(terrainGeometry);
@@ -192,8 +133,6 @@ terrain.add(wireframe);
 
 const wireframeGeometry2 = terrainGeometry;
 const wireframeMaterial2 = new THREE.PointsMaterial({
-  // size: 0.005,
-  // opacity: 0.05,
   size: 0.001,
   color: 0xffffff,
   transparent: true,
@@ -202,11 +141,6 @@ const wireframeMaterial2 = new THREE.PointsMaterial({
 const wireframe2 = new THREE.Points(wireframeGeometry2, wireframeMaterial2);
 wireframe2.renderOrder = 0;
 terrain.add(wireframe2);
-
-// const wireframeGeometry2 = terrainGeometry;
-// const wireframeMaterial2 = wireframeMaterial;
-// const wireframe2 = new THREE.Points(wireframeGeometry2, wireframeMaterial2);
-// terrain.add(wireframe2);
 
 
 
@@ -221,28 +155,3 @@ const animate = () => {
 };
 
 animate();
-
-
-
-
-
-
-// const material = new THREE.MeshStandardMaterial({
-  // wireframe: true,
-  // flatShading: true,
-  // displacementMap: await getHeightMap(),
-  // displacementScale: 2,
-  // polygonOffset: true,
-  // polygonOffsetFactor: 1, // positive value pushes polygon further away
-  // polygonOffsetUnits: 1,
-// });
-
-
-
-
-// const texture = await getHeightMap2();
-// const geometry = new THREE.PlaneGeometry();
-// const material = new THREE.MeshBasicMaterial();
-// material.map = texture;
-// const mesh = new THREE.Mesh(geometry, material);
-// scene.add(mesh);

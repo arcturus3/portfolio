@@ -9,7 +9,7 @@ type Coords = {
 };
 
 const mapsLoader = new Loader({
-  apiKey: 'AIzaSyD7060QClt8EcAYTeuZfz0_1Ub9JGuYa70'
+  apiKey: ''
 });
 
 const mapsLoaderPromise = mapsLoader.load();
