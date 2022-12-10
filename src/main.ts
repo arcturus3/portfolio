@@ -1,7 +1,6 @@
 import './style.css'
 import typescriptLogo from './typescript.svg'
 import { setupCounter } from './counter'
-import './elevation.ts';
 import './render.ts';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
