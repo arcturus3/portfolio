@@ -62,7 +62,7 @@ def reproject_dem(src_filename, dst_filename, dst_crs):
 def read_dem(dem_filename):
     with rasterio.open(dem_filename) as dem:
         data = dem.read(1)
-    return data
+    return data.astype(np.float32)
 
 
 def normalize_heightmap(heightmap):
@@ -115,7 +115,7 @@ def apply_dropoff(heightmap, dropoff_factor):
 
 
 def encode_heightmap(heightmap):
-    data = base64.b64encode(heightmap)
+    data = base64.b64encode(heightmap.astype(np.uint8))
     return bytes.decode(data)
 
 

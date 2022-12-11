@@ -1,24 +1,20 @@
+import {Renderer} from './renderer';
+import {Scene} from './scene';
+import rawHeightmaps from '../heightmap_generator/data/result.json?raw';
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import { setupCounter } from './counter'
-import './render.ts';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const getHeightmap = () => {
+  const heightmaps = JSON.parse(rawHeightmaps);
+  const bytes = window.atob(heightmaps[0].heightmap);
+  const array = Uint8Array.from(bytes, c => c.charCodeAt(0));
+  // const array = Float32Array.from(bytes, c => c.charCodeAt(0));
+  return array;
+};
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const heightmap = getHeightmap();
+console.log(heightmap);
+const scene = new Scene(heightmap);
+const renderer = new Renderer(scene);
+const root = document.getElementById('app')!;
+root.appendChild(renderer.getRenderTarget());
+renderer.start();
