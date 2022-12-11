@@ -17,3 +17,5 @@ const renderer = new Renderer(scene);
 const root = document.getElementById('app')!;
 root.appendChild(renderer.getRenderTarget());
 renderer.render();
+
+window.addEventListener('resize', renderer.handleResize);

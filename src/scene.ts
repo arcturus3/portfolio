@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
 export class Scene extends THREE.Scene {
-  camera!: THREE.Camera;
+  camera!: THREE.PerspectiveCamera;
   terrain!: THREE.Mesh;
-  secondsPerRotation = 30;
+  secondsPerRotation = 60;
 
   constructor(heightmap) {
     super();
@@ -14,7 +14,8 @@ export class Scene extends THREE.Scene {
   }
 
   buildCamera() {
-    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    const aspect = window.innerWidth / window.innerHeight;
+    this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
     this.camera.position.y = 50;
     this.camera.position.z = 100;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));

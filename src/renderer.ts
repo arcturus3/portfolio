@@ -8,6 +8,7 @@ export class Renderer {
 
   constructor(scene: Scene) {
     this.render = this.render.bind(this);
+    this.handleResize = this.handleResize.bind(this);
     this.scene = scene;
     this.clock = new THREE.Clock();
     this.renderer = new THREE.WebGLRenderer({
@@ -24,5 +25,12 @@ export class Renderer {
     requestAnimationFrame(this.render);
     this.scene.update(this.clock.getDelta());
     this.renderer.render(this.scene, this.scene.getCamera());
+  }
+
+  handleResize() {
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    const camera = this.scene.getCamera();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
   }
 }
