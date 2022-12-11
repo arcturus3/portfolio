@@ -15,6 +15,7 @@ export class Renderer {
       antialias: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(2);
   }
 
   getRenderTarget() {

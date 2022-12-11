@@ -23,9 +23,9 @@ export class Scene extends THREE.Scene {
 
   buildLights() {
     const light = new THREE.PointLight();
-    light.power = 20;
-    light.position.x = 10;
-    light.position.y = 10;
+    light.intensity = 2;
+    light.position.x = 100;
+    light.position.y = 100;
     this.add(light);
   }
 
@@ -36,19 +36,19 @@ export class Scene extends THREE.Scene {
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x101010,
       polygonOffset: true,
-      polygonOffsetFactor: 1,
+      polygonOffsetFactor: 10,
       polygonOffsetUnits: 1,
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.05,
+      opacity: 0.02,
     });
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.2,
-      size: 0.001,
+      opacity: 0.1,
+      size: 0.25,
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
