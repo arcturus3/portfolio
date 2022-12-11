@@ -33,22 +33,28 @@ export class Scene extends THREE.Scene {
     const terrainGeometry = this.buildTerrainGeometry(heightmap);
     const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
 
+    const clippingPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -15);
+    // this.add(new THREE.PlaneHelper(clippingPlane, 100));
+
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x101010,
       polygonOffset: true,
       polygonOffsetFactor: 10,
       polygonOffsetUnits: 1,
+      clippingPlanes: [clippingPlane],
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
       opacity: 0.02,
+      clippingPlanes: [clippingPlane],
     });
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
       opacity: 0.1,
       size: 0.25,
+      clippingPlanes: [clippingPlane],
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
