@@ -115,7 +115,14 @@ def apply_dropoff(heightmap, dropoff_factor):
 
 
 def encode_heightmap(heightmap):
-    data = base64.b64encode(heightmap.astype(np.uint8))
+    data = base64.b64encode(heightmap)
+    return bytes.decode(data)
+
+
+def _encode_heightmap(heightmap):
+    heightmap = normalize_heightmap(heightmap)
+    heightmap = (heightmap * np.iinfo(np.uint8).max).astype(np.float32)
+    data = base64.b64encode(heightmap)
     return bytes.decode(data)
 
 
@@ -138,7 +145,7 @@ for mountain in mountains:
     write_image(os.path.join('data/heightmaps2', mountain['id'] + '.png'), heightmap)
     heightmap = rescale_elevations(heightmap, mountain['radius'] * 2)
     write_image(os.path.join('data/heightmaps3', mountain['id'] + '.png'), heightmap)
-    heightmap = apply_dropoff(heightmap, dropoff_factor)
+    # heightmap = apply_dropoff(heightmap, dropoff_factor)
     write_image(os.path.join('data/heightmaps4', mountain['id'] + '.png'), heightmap)
     mountain['heightmap'] = encode_heightmap(heightmap)
 
