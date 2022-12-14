@@ -4,14 +4,14 @@
     "name": "Lone Mountain",
     "coords": [45.278255, -111.450507],
     "elevation": 3402,
-    "radius": 1000
+    "radius": 2000
   },
   {
     "id": "haleakala",
     "name": "Haleakala",
     "coords": [20.709718, -156.253331],
     "elevation": 3055,
-    "radius": 1000
+    "radius": 3000
   },
   {
     "id": "mauna_kea",

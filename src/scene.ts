@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import alphaMapUrl from '../alpha_map.png';
 import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
 export class Scene extends THREE.Scene {
@@ -16,33 +17,50 @@ export class Scene extends THREE.Scene {
   buildCamera() {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
-    this.camera.position.y = 50;
-    this.camera.position.z = 100;
+    this.camera.position.y = 100;
+    this.camera.position.z = 200;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   buildLights() {
     const light = new THREE.PointLight();
-    light.intensity = 2;
+    light.intensity = 12;
     light.position.x = 100;
     light.position.y = 100;
     this.add(light);
+
+    const temp = new THREE.AmbientLight();
+    temp.intensity = 2;
+    this.add(temp);
+
+    const light2 = new THREE.PointLight();
+    light2.intensity = 10;
+    light.position.y = 100;
+    this.add(light2);
   }
 
   buildTerrain(heightmap) {
     const terrainGeometry = this.buildTerrainGeometry(heightmap);
     const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
 
+    const loader = new THREE.TextureLoader();
+    const alphaMap = loader.load(alphaMapUrl);
+
+
     const terrainMaterial = new THREE.MeshStandardMaterial({
-      color: 0x101010,
+      color: 0x000000,
+      side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: 10,
       polygonOffsetUnits: 1,
+      alphaMap: alphaMap,
+      transparent: true,
+      metalness: 0.35
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.02,
+      opacity: 0.05,
     });
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
@@ -60,10 +78,11 @@ export class Scene extends THREE.Scene {
     // const normals = new VertexNormalsHelper(terrain);
     // scene.add(normals);
 
-    terrain.add(lines);
-    terrain.add(points);
+    // terrain.add(lines);
+    // terrain.add(points);
     this.add(terrain);
     this.terrain = terrain;
+    terrain.translateY(-10);
   }
 
   buildTerrainGeometry(heightmap) {

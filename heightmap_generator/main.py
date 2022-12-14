@@ -103,7 +103,7 @@ def dropoff(radius, factor, x):
     return ease(clamped_x - inner_radius)
 
 
-def apply_dropoff(heightmap, dropoff_factor):
+def _apply_dropoff(heightmap, dropoff_factor):
     size_pixels = heightmap.shape[0]
     center = (size_pixels - 1) / 2
     result_heightmap = np.zeros_like(heightmap)
@@ -114,20 +114,31 @@ def apply_dropoff(heightmap, dropoff_factor):
     return result_heightmap
 
 
+def apply_dropoff(heightmap, dropoff_factor):
+    size_pixels = heightmap.shape[0]
+    center = (size_pixels - 1) / 2
+    result_heightmap = np.zeros_like(heightmap)
+    for y in range(size_pixels):
+        for x in range(size_pixels):
+            dist = np.linalg.norm([x - center, y - center])
+            if dist <= 50:
+                factor = 1
+            elif dist <= 100:
+                factor = 2 - dist / 50
+            else:
+                factor = 0
+            result_heightmap[y][x] = heightmap[y][x] * factor
+    return result_heightmap
+
+
+
 def encode_heightmap(heightmap):
     data = base64.b64encode(heightmap)
     return bytes.decode(data)
 
 
-def _encode_heightmap(heightmap):
-    heightmap = normalize_heightmap(heightmap)
-    heightmap = (heightmap * np.iinfo(np.uint8).max).astype(np.float32)
-    data = base64.b64encode(heightmap)
-    return bytes.decode(data)
-
-
-size_pixels = 100
-dropoff_factor = 0.1
+size_pixels = 300
+dropoff_factor = 0.25
 
 with open('../config.json') as file:
     mountains = json.load(file)
