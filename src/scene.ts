@@ -19,13 +19,13 @@ export class Scene extends THREE.Scene {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
     this.camera.position.y = 100;
-    this.camera.position.z = 400;
+    this.camera.position.z = 300;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   buildLights() {
     const light = new THREE.PointLight();
-    light.intensity = 12;
+    light.intensity = 8;
     light.position.x = 100;
     light.position.y = 100;
     this.add(light);
@@ -57,8 +57,7 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
       alphaMap: alphaMap,
       transparent: true,
-      metalness: 0.35,
-      visible: false,
+      // visible: false,
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
@@ -68,8 +67,8 @@ export class Scene extends THREE.Scene {
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 1,
-      size: 1,
+      opacity: 0.5,
+      size: 0.5,
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
@@ -86,7 +85,6 @@ export class Scene extends THREE.Scene {
     terrain.add(points);
     this.add(terrain);
     this.terrain = terrain;
-    terrain.translateY(-10);
   }
 
   getY(heightmap, x, z) {
@@ -97,11 +95,11 @@ export class Scene extends THREE.Scene {
     }
     const i = Math.round(x + center);
     const j = Math.round(z + center);
-    return heightmap[i * size + j];
+    return heightmap[j * size + i];
   }
 
   buildPointsGeometry(heightmap) {
-    const points = 5000;
+    const points = 10000;
     const chance = new Chance();
     const geometry = new THREE.BufferGeometry();
     const vertices = new Float32Array(points * 3);
