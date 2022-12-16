@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Chance from 'chance';
 import alphaMapUrl from '../alpha_map.png';
 import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
@@ -88,17 +89,35 @@ export class Scene extends THREE.Scene {
     terrain.translateY(-10);
   }
 
+  getY(heightmap, x, z) {
+    const size = Math.floor(Math.sqrt(heightmap.length));
+    const center = (size - 1) / 2;
+    if (Math.hypot(x, z) > center) {
+      return -1;
+    }
+    const i = Math.round(x + center);
+    const j = Math.round(z + center);
+    return heightmap[i * size + j];
+  }
+
   buildPointsGeometry(heightmap) {
-    const points = 25000;
+    const points = 5000;
+    const chance = new Chance();
     const geometry = new THREE.BufferGeometry();
     const vertices = new Float32Array(points * 3);
-    for (let i = 0; i < points; i++) {
-      const x = Math.floor(Math.random() * 300);
-      const z = Math.floor(Math.random() * 300);
-      const y = heightmap[300 * x + z];
-      vertices[i * 3] = x - 149.5;
-      vertices[i * 3 + 1] = y;
-      vertices[i * 3 + 2] = z - 149.5;
+    let count = 0;
+    while (count < points) {
+      const stride = count * 3;
+      const x = chance.normal({dev: 50});
+      const z = chance.normal({dev: 50});
+      const y = this.getY(heightmap, x, z);
+      if (y == -1) {
+        continue;
+      }
+      vertices[stride] = x;
+      vertices[stride + 1] = y;
+      vertices[stride + 2] = z;
+      count++;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     return geometry;
