@@ -18,7 +18,7 @@ export class Scene extends THREE.Scene {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
     this.camera.position.y = 100;
-    this.camera.position.z = 200;
+    this.camera.position.z = 400;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
@@ -42,6 +42,7 @@ export class Scene extends THREE.Scene {
   buildTerrain(heightmap) {
     const terrainGeometry = this.buildTerrainGeometry(heightmap);
     const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
+    const pointsGeometry = this.buildPointsGeometry(heightmap);
 
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load(alphaMapUrl);
@@ -55,7 +56,8 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
       alphaMap: alphaMap,
       transparent: true,
-      metalness: 0.35
+      metalness: 0.35,
+      visible: false,
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
@@ -65,13 +67,13 @@ export class Scene extends THREE.Scene {
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.1,
-      size: 0.25,
+      opacity: 1,
+      size: 1,
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
     const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
-    const points = new THREE.Points(terrainGeometry, pointsMaterial);
+    const points = new THREE.Points(pointsGeometry, pointsMaterial);
 
     points.renderOrder = 0;
     lines.renderOrder = 1;
@@ -79,10 +81,27 @@ export class Scene extends THREE.Scene {
     // scene.add(normals);
 
     // terrain.add(lines);
-    // terrain.add(points);
+    // points.rotateY(-Math.PI / 2);
+    terrain.add(points);
     this.add(terrain);
     this.terrain = terrain;
     terrain.translateY(-10);
+  }
+
+  buildPointsGeometry(heightmap) {
+    const points = 25000;
+    const geometry = new THREE.BufferGeometry();
+    const vertices = new Float32Array(points * 3);
+    for (let i = 0; i < points; i++) {
+      const x = Math.floor(Math.random() * 300);
+      const z = Math.floor(Math.random() * 300);
+      const y = heightmap[300 * x + z];
+      vertices[i * 3] = x - 149.5;
+      vertices[i * 3 + 1] = y;
+      vertices[i * 3 + 2] = z - 149.5;
+    }
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    return geometry;
   }
 
   buildTerrainGeometry(heightmap) {
