@@ -5,7 +5,7 @@ import './style.css'
 
 const getHeightmap = () => {
   const heightmaps = JSON.parse(rawHeightmaps);
-  const bytes = window.atob(heightmaps[0].heightmap);
+  const bytes = window.atob(heightmaps[4].heightmap);
   const buffer = Uint8Array.from(bytes, c => c.charCodeAt(0)).buffer;
   const array = new Float32Array(buffer);
   return array;

@@ -18,12 +18,13 @@ export class Scene extends THREE.Scene {
   buildCamera() {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
-    this.camera.position.y = 100;
-    this.camera.position.z = 300;
+    this.camera.position.y = 75;
+    this.camera.position.z = 225;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   buildLights() {
+    // need to prevent bright white highlights
     const light = new THREE.PointLight();
     light.intensity = 8;
     light.position.x = 100;
@@ -48,10 +49,9 @@ export class Scene extends THREE.Scene {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load(alphaMapUrl);
 
-
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
-      side: THREE.DoubleSide,
+      side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
       polygonOffset: true,
       polygonOffsetFactor: 10,
       polygonOffsetUnits: 1,
@@ -65,15 +65,24 @@ export class Scene extends THREE.Scene {
       opacity: 0.05,
     });
     const pointsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
+      color: 0x808080,
       transparent: true,
       opacity: 0.5,
       size: 0.5,
+    });
+    // go under terrain to prevent alpha showing
+    const coverMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
+      polygonOffset: true, // use render order instead of offset?
+      polygonOffsetFactor: 20,
+      polygonOffsetUnits: 1,
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
     const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
     const points = new THREE.Points(pointsGeometry, pointsMaterial);
+    const cover = new THREE.Mesh(terrainGeometry, coverMaterial);
 
     points.renderOrder = 0;
     lines.renderOrder = 1;
@@ -83,6 +92,7 @@ export class Scene extends THREE.Scene {
     // terrain.add(lines);
     // points.rotateY(-Math.PI / 2);
     terrain.add(points);
+    terrain.add(cover);
     this.add(terrain);
     this.terrain = terrain;
   }
