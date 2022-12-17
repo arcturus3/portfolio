@@ -53,7 +53,7 @@ export class Scene extends THREE.Scene {
       color: 0x000000,
       side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
       polygonOffset: true,
-      polygonOffsetFactor: 10,
+      polygonOffsetFactor: 20,
       polygonOffsetUnits: 1,
       alphaMap: alphaMap,
       transparent: true,
@@ -75,7 +75,7 @@ export class Scene extends THREE.Scene {
       color: 0x000000,
       side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
       polygonOffset: true, // use render order instead of offset?
-      polygonOffsetFactor: 20,
+      polygonOffsetFactor: 40,
       polygonOffsetUnits: 1,
     });
 
