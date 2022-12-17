@@ -51,9 +51,9 @@ export class Scene extends THREE.Scene {
 
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
-      side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
+      // side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
       polygonOffset: true,
-      polygonOffsetFactor: 20,
+      polygonOffsetFactor: 20, // any downsides to large value?
       polygonOffsetUnits: 1,
       alphaMap: alphaMap,
       transparent: true,
@@ -73,9 +73,9 @@ export class Scene extends THREE.Scene {
     // go under terrain to prevent alpha showing
     const coverMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
-      side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
+      // side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
       polygonOffset: true, // use render order instead of offset?
-      polygonOffsetFactor: 40,
+      polygonOffsetFactor: 40, // any downsides to large value?
       polygonOffsetUnits: 1,
     });
 
