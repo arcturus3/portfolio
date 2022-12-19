@@ -43,7 +43,7 @@ export class Scene extends THREE.Scene {
 
   buildTerrain(heightmap) {
     const terrainGeometry = this.buildTerrainGeometry(heightmap);
-    const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
+    // const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
     const pointsGeometry = this.buildPointsGeometry(heightmap);
 
     const loader = new THREE.TextureLoader();
@@ -80,12 +80,12 @@ export class Scene extends THREE.Scene {
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+    // const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
     const points = new THREE.Points(pointsGeometry, pointsMaterial);
     const cover = new THREE.Mesh(terrainGeometry, coverMaterial);
 
     points.renderOrder = 0;
-    lines.renderOrder = 1;
+    // lines.renderOrder = 1;
     // const normals = new VertexNormalsHelper(terrain);
     // scene.add(normals);
 
