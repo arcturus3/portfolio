@@ -2,7 +2,6 @@ import {Renderer} from './renderer';
 import {Scene} from './scene';
 import rawHeightmaps from '../heightmap_generator/data/result.json?raw';
 import './style.css'
-import feather from 'feather-icons';
 import {createRoot} from 'react-dom/client';
 import {App} from './App';
 
@@ -22,9 +21,6 @@ root.appendChild(renderer.getRenderTarget());
 renderer.render();
 
 window.addEventListener('resize', renderer.handleResize);
-
-feather.replace({width: 18, height: 18, 'stroke-width': 2});
-
 
 const uiRoot = document.getElementById('ui-root')!;
 createRoot(uiRoot).render(<App />);

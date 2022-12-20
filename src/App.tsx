@@ -1,29 +1,70 @@
-import { useState } from 'react'
+import {FileText, GitHub, Linkedin, ArrowRight, Info} from 'react-feather';
 
-export function App() {
-  const [count, setCount] = useState(0)
-
+export const App = () => {
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
+    <>
+      <div style={{
+        position: 'fixed',
+        left: 20,
+        top: 20,
+        writingMode: 'vertical-rl',
+        transform: 'rotate(180deg)'
+      }}>
+        <span style={{
+          fontFamily: '"Inter", sans-serif',
+          fontSize: 18,
+          fontWeight: 600
+        }}>Arti Schmidt</span>
+        <span style={{
+          fontFamily: '"Courier Prime", monospace',
+          whiteSpace: 'pre'
+        }}> // Software Engineer</span>
+      </div>
+      <div style={{
+        position: 'fixed',
+        left: 20,
+        bottom: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}>
+        <a href="/resume.pdf">
+          <FileText size={20} />
         </a>
-        <a href="https://reactjs.org" target="_blank">
+        <a href="https://github.com/arcturus3">
+          <GitHub size={20} />
+        </a>
+        <a href="https://www.linkedin.com/in/artischmidt">
+          <Linkedin size={20} />
         </a>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div style={{
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 40,
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 10,
+      }}>
+        <Info size={20} />
+        <div>
+          <div style={{
+            fontFamily: '"Courier Prime", monospace',
+            textAlign: 'center'
+          }}>
+            Jungfrau
+          </div>
+          <div style={{
+            fontFamily: '"Courier Prime", monospace',
+            fontSize: 12,
+            textAlign: 'center',
+          }}>
+            4602 m
+          </div>
+        </div>
+        <ArrowRight size={20} />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
-}
+    </>
+  );
+};
