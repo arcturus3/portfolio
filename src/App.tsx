@@ -1,8 +1,10 @@
 import {FileText, GitHub, Linkedin, ArrowRight, Info} from 'react-feather';
+import {Feature} from './Feature';
 
 export const App = () => {
   return (
     <>
+      <Feature />
       <div style={{
         position: 'fixed',
         left: 20,
