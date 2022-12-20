@@ -1,4 +1,4 @@
-import {FileText, GitHub, Linkedin, ArrowRight, Info} from 'react-feather';
+import {FileText, GitHub, Linkedin} from 'react-feather';
 import {Feature} from './Feature';
 
 export const App = () => {
@@ -39,33 +39,6 @@ export const App = () => {
         <a href="https://www.linkedin.com/in/artischmidt">
           <Linkedin size={20} />
         </a>
-      </div>
-      <div style={{
-        position: 'fixed',
-        left: 0,
-        right: 0,
-        bottom: 40,
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 10,
-      }}>
-        <Info size={20} />
-        <div>
-          <div style={{
-            fontFamily: '"Courier Prime", monospace',
-            textAlign: 'center'
-          }}>
-            Jungfrau
-          </div>
-          <div style={{
-            fontFamily: '"Courier Prime", monospace',
-            fontSize: 12,
-            textAlign: 'center',
-          }}>
-            4602 m
-          </div>
-        </div>
-        <ArrowRight size={20} />
       </div>
     </>
   );

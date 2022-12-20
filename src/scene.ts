@@ -8,7 +8,7 @@ export class Scene extends THREE.Scene {
   terrain!: THREE.Mesh;
   secondsPerRotation = 60;
 
-  constructor(heightmap) {
+  constructor(heightmap: Float32Array) {
     super();
     this.buildCamera();
     this.buildLights();
@@ -41,7 +41,7 @@ export class Scene extends THREE.Scene {
     this.add(light2);
   }
 
-  buildTerrain(heightmap) {
+  buildTerrain(heightmap: Float32Array) {
     const terrainGeometry = this.buildTerrainGeometry(heightmap);
     // const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
     const pointsGeometry = this.buildPointsGeometry(heightmap);
@@ -97,7 +97,7 @@ export class Scene extends THREE.Scene {
     this.terrain = terrain;
   }
 
-  getY(heightmap, x, z) {
+  getY(heightmap: Float32Array, x: number, z: number) {
     const size = Math.floor(Math.sqrt(heightmap.length));
     const center = (size - 1) / 2;
     if (Math.hypot(x, z) > center) {
@@ -108,7 +108,7 @@ export class Scene extends THREE.Scene {
     return heightmap[j * size + i];
   }
 
-  buildPointsGeometry(heightmap) {
+  buildPointsGeometry(heightmap: Float32Array) {
     const points = 10000;
     const chance = new Chance();
     const geometry = new THREE.BufferGeometry();
@@ -131,7 +131,7 @@ export class Scene extends THREE.Scene {
     return geometry;
   }
 
-  buildTerrainGeometry(heightmap) {
+  buildTerrainGeometry(heightmap: Float32Array) {
     const size = Math.floor(Math.sqrt(heightmap.length));
     const terrainGeometry = new THREE.PlaneGeometry(size - 1, size - 1, size - 1, size - 1);
     terrainGeometry.rotateX(-Math.PI / 2);
@@ -152,5 +152,10 @@ export class Scene extends THREE.Scene {
   update(timeDelta: number) {
     const angle = 2 * Math.PI * timeDelta / this.secondsPerRotation
     this.terrain.rotateY(angle);
+  }
+
+  handleHeightmapChange(heightmap: Float32Array) {
+    this.remove(this.terrain);
+    this.buildTerrain(heightmap);
   }
 }
