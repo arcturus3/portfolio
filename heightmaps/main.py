@@ -160,5 +160,5 @@ for mountain in mountains:
     write_image(os.path.join('data/heightmaps4', mountain['id'] + '.png'), heightmap)
     mountain['heightmap'] = encode_heightmap(heightmap)
 
-with open('../mountains.json', 'w') as file:
+with open('../generated/mountains.json', 'w') as file:
     json.dump(mountains, file)

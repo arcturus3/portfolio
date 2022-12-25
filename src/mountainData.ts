@@ -1,4 +1,4 @@
-import rawMountainData from '../heightmap_generator/data/result.json?raw';
+import rawMountainData from '/generated/mountains.json?raw';
 
 type BaseMountain = {
   id: string,

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Chance from 'chance';
-import alphaMapUrl from '../alpha_map.png';
 import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
 export class Scene extends THREE.Scene {
@@ -47,7 +46,7 @@ export class Scene extends THREE.Scene {
     const pointsGeometry = this.buildPointsGeometry(heightmap);
 
     const loader = new THREE.TextureLoader();
-    const alphaMap = loader.load(alphaMapUrl);
+    const alphaMap = loader.load('/alpha_map.png');
 
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
