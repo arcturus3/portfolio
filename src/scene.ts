@@ -16,8 +16,8 @@ export class Scene extends THREE.Scene {
   buildCamera() {
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 10000);
-    this.camera.position.y = 75;
-    this.camera.position.z = 225;
+    this.camera.position.y = 0.35;
+    this.camera.position.z = 0.75;
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
@@ -40,8 +40,6 @@ export class Scene extends THREE.Scene {
 
   // need to prevent underside of mesh from showing, maybe drop at edges
   // need to fix bright highlights on mesh
-  // investigate downsides to (large) polygon offset
-  // render order versus polygon offset
   buildTerrain(heightmap: Float32Array) {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
@@ -58,10 +56,10 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
     });
     const pointsMaterial = new THREE.PointsMaterial({
-      color: 0x808080,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.5,
-      size: 0.5,
+      opacity: 0.2,
+      size: 0.001,
     });
     // to prevent underside of terrain showing due to transparent edges
     const coverMaterial = new THREE.MeshBasicMaterial({
@@ -83,15 +81,50 @@ export class Scene extends THREE.Scene {
     this.terrain = group;
   }
 
-  getY(heightmap: Float32Array, x: number, z: number) {
+  lerp(a: number, b: number, t: number) {
+    return (1 - t) * a + t * b;
+  }
+
+  // x and z in [0, 1]
+  // either returns nearest height or performs bilinear interpolation
+  getHeight(heightmap: Float32Array, x: number, z: number, interpolate: boolean) {
     const size = Math.floor(Math.sqrt(heightmap.length));
-    const center = (size - 1) / 2;
-    if (Math.hypot(x, z) > center) {
-      return -1;
+    const row = (size - 1) * z;
+    const col = (size - 1) * x;
+    if (interpolate) {
+      const prevRow = Math.floor(row);
+      const nextRow = Math.ceil(row);
+      const prevCol = Math.floor(col);
+      const nextCol = Math.ceil(col);
+      const a = heightmap[prevRow * size + prevCol];
+      const b = heightmap[prevRow * size + nextCol];
+      const c = heightmap[nextRow * size + prevCol];
+      const d = heightmap[nextRow * size + nextCol];
+      const e = this.lerp(a, b, col - prevCol);
+      const f = this.lerp(c, d, col - prevCol);
+      const g = this.lerp(e, f, row - prevRow);
+      return g / (size - 1);
     }
-    const i = Math.round(x + center);
-    const j = Math.round(z + center);
-    return heightmap[j * size + i];
+    else {
+      const nearestRow = Math.round(row);
+      const nearestCol = Math.round(col);
+      return heightmap[nearestRow * size + nearestCol] / (size - 1);
+    }
+  }
+
+  buildTerrainGeometry(heightmap: Float32Array) {
+    const size = Math.floor(Math.sqrt(heightmap.length));
+    const terrainGeometry = new THREE.PlaneGeometry(1, 1, size - 1, size - 1);
+    terrainGeometry.rotateX(-Math.PI / 2);
+    const vertices = terrainGeometry.getAttribute('position');
+    // provide reference to heightmap buffer instead?
+    for (let i = 0; i < vertices.count; i++) {
+      vertices.setY(i, heightmap[i] / (size - 1));
+    }
+    terrainGeometry.computeVertexNormals();
+    terrainGeometry.normalizeNormals();
+    vertices.needsUpdate = true;
+    return terrainGeometry;
   }
 
   buildPointsGeometry(heightmap: Float32Array) {
@@ -101,36 +134,19 @@ export class Scene extends THREE.Scene {
     const vertices = new Float32Array(points * 3);
     let count = 0;
     while (count < points) {
-      const stride = count * 3;
-      const x = chance.normal({dev: 50});
-      const z = chance.normal({dev: 50});
-      const y = this.getY(heightmap, x, z);
-      if (y == -1) {
+      const x = chance.normal({dev: 0.16});
+      const z = chance.normal({dev: 0.16});
+      if (Math.hypot(x, z) > 0.5) {
         continue;
       }
-      vertices[stride] = x;
-      vertices[stride + 1] = y;
-      vertices[stride + 2] = z;
+      const y = this.getHeight(heightmap, x + 0.5, z + 0.5, true);
+      vertices[count * 3] = x;
+      vertices[count * 3 + 1] = y;
+      vertices[count * 3 + 2] = z;
       count++;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.scale(3, 3, 3);
     return geometry;
-  }
-
-  buildTerrainGeometry(heightmap: Float32Array) {
-    const size = Math.floor(Math.sqrt(heightmap.length));
-    const terrainGeometry = new THREE.PlaneGeometry(size - 1, size - 1, size - 1, size - 1);
-    terrainGeometry.rotateX(-Math.PI / 2);
-    const vertices = terrainGeometry.getAttribute('position');
-    for (let i = 0; i < vertices.count; i++) {
-      vertices.setY(i, heightmap[i]);
-    }
-    terrainGeometry.computeVertexNormals();
-    terrainGeometry.normalizeNormals();
-    terrainGeometry.scale(3, 3, 3);
-    vertices.needsUpdate = true;
-    return terrainGeometry;
   }
 
   getCamera() {
