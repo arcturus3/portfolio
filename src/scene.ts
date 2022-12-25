@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import Chance from 'chance';
-import {VertexNormalsHelper} from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
 export class Scene extends THREE.Scene {
   camera!: THREE.PerspectiveCamera;
-  terrain!: THREE.Mesh;
+  terrain!: THREE.Object3D;
   secondsPerRotation = 60;
 
   constructor(heightmap: Float32Array) {
@@ -23,7 +22,6 @@ export class Scene extends THREE.Scene {
   }
 
   buildLights() {
-    // need to prevent bright white highlights
     const light = new THREE.PointLight();
     light.intensity = 8;
     light.position.x = 100;
@@ -40,28 +38,24 @@ export class Scene extends THREE.Scene {
     this.add(light2);
   }
 
+  // need to prevent underside of mesh from showing, maybe drop at edges
+  // need to fix bright highlights on mesh
+  // investigate downsides to (large) polygon offset
+  // render order versus polygon offset
   buildTerrain(heightmap: Float32Array) {
-    const terrainGeometry = this.buildTerrainGeometry(heightmap);
-    // const linesGeometry = new THREE.WireframeGeometry(terrainGeometry);
-    const pointsGeometry = this.buildPointsGeometry(heightmap);
-
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
 
+    const terrainGeometry = this.buildTerrainGeometry(heightmap);
+    const pointsGeometry = this.buildPointsGeometry(heightmap);
+
     const terrainMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
-      // side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
-      polygonOffset: true,
-      polygonOffsetFactor: 20, // any downsides to large value?
-      polygonOffsetUnits: 1,
+      transparent: true,
       alphaMap: alphaMap,
-      transparent: true,
-      wireframe: true,
-    });
-    const linesMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.05,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
     });
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0x808080,
@@ -69,31 +63,24 @@ export class Scene extends THREE.Scene {
       opacity: 0.5,
       size: 0.5,
     });
-    // go under terrain to prevent alpha showing
+    // to prevent underside of terrain showing due to transparent edges
     const coverMaterial = new THREE.MeshBasicMaterial({
       color: 0x000000,
-      // side: THREE.DoubleSide, // need to drop mesh to 0 at edges still
-      polygonOffset: true, // use render order instead of offset?
-      polygonOffsetFactor: 40, // any downsides to large value?
+      polygonOffset: true,
+      polygonOffsetFactor: 2,
       polygonOffsetUnits: 1,
     });
 
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    // const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
     const points = new THREE.Points(pointsGeometry, pointsMaterial);
     const cover = new THREE.Mesh(terrainGeometry, coverMaterial);
 
-    points.renderOrder = 0;
-    // lines.renderOrder = 1;
-    // const normals = new VertexNormalsHelper(terrain);
-    // scene.add(normals);
-
-    // terrain.add(lines);
-    // points.rotateY(-Math.PI / 2);
-    terrain.add(points);
-    terrain.add(cover);
-    this.add(terrain);
-    this.terrain = terrain;
+    const group = new THREE.Group();
+    group.add(terrain);
+    group.add(points);
+    group.add(cover);
+    this.add(group);
+    this.terrain = group;
   }
 
   getY(heightmap: Float32Array, x: number, z: number) {
@@ -142,7 +129,7 @@ export class Scene extends THREE.Scene {
     terrainGeometry.computeVertexNormals();
     terrainGeometry.normalizeNormals();
     terrainGeometry.scale(3, 3, 3);
-    // vertices.needsUpdate = true;
+    vertices.needsUpdate = true;
     return terrainGeometry;
   }
 

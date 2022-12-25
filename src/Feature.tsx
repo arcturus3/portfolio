@@ -14,6 +14,7 @@ export const Feature = () => {
   useEffect(() => {
     const chance = new Chance();
     shuffledDataRef.current = chance.shuffle(mountainData);
+    shuffledDataRef.current = mountainData;
     const scene = new Scene(shuffledDataRef.current[mountainIndex].heightmap);
     sceneRef.current = scene;
     const renderer = new Renderer(scene);
