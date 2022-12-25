@@ -1,5 +1,10 @@
 import * as THREE from 'three';
 import {Scene} from './scene';
+import Stats from 'stats.js';
+
+const stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
 
 export class Renderer {
   renderer;
@@ -15,7 +20,7 @@ export class Renderer {
       antialias: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(2);
+    // this.renderer.setPixelRatio(2);
   }
 
   getRenderTarget() {
@@ -24,8 +29,11 @@ export class Renderer {
 
   render() {
     requestAnimationFrame(this.render);
+    stats.begin();
     this.scene.update(this.clock.getDelta());
+    stats.end();
     this.renderer.render(this.scene, this.scene.getCamera());
+    console.log(this.renderer.info.render);
   }
 
   handleResize() {

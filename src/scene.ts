@@ -57,7 +57,7 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
       alphaMap: alphaMap,
       transparent: true,
-      // visible: false,
+      wireframe: true,
     });
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
@@ -128,6 +128,7 @@ export class Scene extends THREE.Scene {
       count++;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.scale(3, 3, 3);
     return geometry;
   }
 
@@ -141,6 +142,7 @@ export class Scene extends THREE.Scene {
     }
     terrainGeometry.computeVertexNormals();
     terrainGeometry.normalizeNormals();
+    terrainGeometry.scale(3, 3, 3);
     // vertices.needsUpdate = true;
     return terrainGeometry;
   }

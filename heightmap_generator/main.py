@@ -137,7 +137,7 @@ def encode_heightmap(heightmap):
     return bytes.decode(data)
 
 
-size_pixels = 300
+size_pixels = 100
 dropoff_factor = 0.25
 
 with open('../config.json') as file:
