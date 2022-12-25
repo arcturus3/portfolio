@@ -140,7 +140,7 @@ def encode_heightmap(heightmap):
 size_pixels = 100
 dropoff_factor = 0.25
 
-with open('../config.json') as file:
+with open('mountains.json') as file:
     mountains = json.load(file)
 
 for mountain in mountains:
@@ -160,5 +160,5 @@ for mountain in mountains:
     write_image(os.path.join('data/heightmaps4', mountain['id'] + '.png'), heightmap)
     mountain['heightmap'] = encode_heightmap(heightmap)
 
-with open('data/result.json', 'w') as file:
+with open('../mountains.json', 'w') as file:
     json.dump(mountains, file)
