@@ -33,7 +33,6 @@ export class Renderer {
     this.scene.update(this.clock.getDelta());
     stats.end();
     this.renderer.render(this.scene, this.scene.getCamera());
-    console.log(this.renderer.info.render);
   }
 
   handleResize() {

@@ -3,7 +3,10 @@ import Chance from 'chance';
 
 export class Scene extends THREE.Scene {
   camera!: THREE.PerspectiveCamera;
-  terrain!: THREE.Object3D;
+  terrainGroup!: THREE.Group;
+  meshGeometry!: THREE.BufferGeometry;
+  pointsGeometry!: THREE.BufferGeometry;
+
   secondsPerRotation = 60;
 
   constructor(heightmap: Float32Array) {
@@ -44,7 +47,7 @@ export class Scene extends THREE.Scene {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
 
-    const terrainGeometry = this.buildTerrainGeometry(heightmap);
+    const meshGeometry = this.buildTerrainGeometry(heightmap);
     const pointsGeometry = this.buildPointsGeometry(heightmap);
 
     const terrainMaterial = new THREE.MeshStandardMaterial({
@@ -69,20 +72,19 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
     });
 
-    const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    const terrain = new THREE.Mesh(meshGeometry, terrainMaterial);
     const points = new THREE.Points(pointsGeometry, pointsMaterial);
-    const cover = new THREE.Mesh(terrainGeometry, coverMaterial);
+    const cover = new THREE.Mesh(meshGeometry, coverMaterial);
 
-    const group = new THREE.Group();
-    group.add(terrain);
-    group.add(points);
-    group.add(cover);
-    this.add(group);
-    this.terrain = group;
-  }
+    const terrainGroup = new THREE.Group();
+    // terrainGroup.add(terrain);
+    terrainGroup.add(points);
+    terrainGroup.add(cover);
+    this.add(terrainGroup);
 
-  lerp(a: number, b: number, t: number) {
-    return (1 - t) * a + t * b;
+    this.terrainGroup = terrainGroup;
+    this.meshGeometry = meshGeometry;
+    this.pointsGeometry = pointsGeometry;
   }
 
   // x and z in [0, 1]
@@ -100,9 +102,9 @@ export class Scene extends THREE.Scene {
       const b = heightmap[prevRow * size + nextCol];
       const c = heightmap[nextRow * size + prevCol];
       const d = heightmap[nextRow * size + nextCol];
-      const e = this.lerp(a, b, col - prevCol);
-      const f = this.lerp(c, d, col - prevCol);
-      const g = this.lerp(e, f, row - prevRow);
+      const e = THREE.MathUtils.lerp(a, b, col - prevCol);
+      const f = THREE.MathUtils.lerp(c, d, col - prevCol);
+      const g = THREE.MathUtils.lerp(e, f, row - prevRow);
       return g / (size - 1);
     }
     else {
@@ -121,21 +123,21 @@ export class Scene extends THREE.Scene {
     for (let i = 0; i < vertices.count; i++) {
       vertices.setY(i, heightmap[i] / (size - 1));
     }
+    vertices.needsUpdate = true;
     terrainGeometry.computeVertexNormals();
     terrainGeometry.normalizeNormals();
-    vertices.needsUpdate = true;
     return terrainGeometry;
   }
 
   buildPointsGeometry(heightmap: Float32Array) {
-    const points = 10000;
+    const points = 100000;
     const chance = new Chance();
     const geometry = new THREE.BufferGeometry();
     const vertices = new Float32Array(points * 3);
     let count = 0;
     while (count < points) {
-      const x = chance.normal({dev: 0.16});
-      const z = chance.normal({dev: 0.16});
+      const x = chance.normal({dev: 0.2});
+      const z = chance.normal({dev: 0.2});
       if (Math.hypot(x, z) > 0.5) {
         continue;
       }
@@ -154,12 +156,26 @@ export class Scene extends THREE.Scene {
   }
 
   update(timeDelta: number) {
-    const angle = 2 * Math.PI * timeDelta / this.secondsPerRotation
-    this.terrain.rotateY(angle);
+    const angle = 2 * Math.PI * timeDelta / this.secondsPerRotation;
+    this.terrainGroup.rotateY(angle);
+    
+    // const vertices = this.meshGeometry.getAttribute('position');
+    // for (let i = 0; i < vertices.count; i++) {
+    //   vertices.setY(i, vertices.getY(i) - 0.0001);
+    // }
+    // vertices.needsUpdate = true;
+    // this.meshGeometry.computeVertexNormals();
+    // this.meshGeometry.normalizeNormals();
   }
 
   handleHeightmapChange(heightmap: Float32Array) {
-    this.remove(this.terrain);
+    // const vertices = this.meshGeometry.getAttribute('position');
+    // for (let i = 0; i < vertices.count; i++) {
+    //   vertices.setY(i, 0);
+    // }
+    // vertices.needsUpdate = true;
+
+    this.remove(this.terrainGroup);
     this.buildTerrain(heightmap);
   }
 }
