@@ -24,7 +24,7 @@ export const Feature = () => {
   }, []);
 
   useEffect(() => {
-    sceneRef.current!.handleHeightmapChange(shuffledDataRef.current[mountainIndex].heightmap);
+    sceneRef.current!.setHeightmap(shuffledDataRef.current[mountainIndex].heightmap);
   }, [mountainIndex]);
 
   return (

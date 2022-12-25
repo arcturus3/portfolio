@@ -7,13 +7,20 @@ export class Scene extends THREE.Scene {
   meshGeometry!: THREE.BufferGeometry;
   pointsGeometry!: THREE.BufferGeometry;
 
-  secondsPerRotation = 60;
+  originGeometry: THREE.BufferGeometry;
+  targetGeometry: THREE.BufferGeometry;
+  interpolationFactor: number;
+
+  rotationTimeSeconds = 60;
+  morphTimeSeconds = 2;
 
   constructor(heightmap: Float32Array) {
     super();
     this.buildCamera();
     this.buildLights();
     this.buildTerrain(heightmap);
+    this.targetGeometry = this.pointsGeometry.clone();
+    this.interpolationFactor = 1;
   }
 
   buildCamera() {
@@ -70,6 +77,7 @@ export class Scene extends THREE.Scene {
       polygonOffset: true,
       polygonOffsetFactor: 2,
       polygonOffsetUnits: 1,
+      visible: false,
     });
 
     const terrain = new THREE.Mesh(meshGeometry, terrainMaterial);
@@ -155,27 +163,48 @@ export class Scene extends THREE.Scene {
     return this.camera;
   }
 
-  update(timeDelta: number) {
-    const angle = 2 * Math.PI * timeDelta / this.secondsPerRotation;
+  update(deltaSeconds: number) {
+    const angle = 2 * Math.PI * deltaSeconds / this.rotationTimeSeconds;
     this.terrainGroup.rotateY(angle);
-    
-    // const vertices = this.meshGeometry.getAttribute('position');
-    // for (let i = 0; i < vertices.count; i++) {
-    //   vertices.setY(i, vertices.getY(i) - 0.0001);
-    // }
-    // vertices.needsUpdate = true;
+
+    if (this.interpolationFactor < 1) {
+      this.interpolationFactor += deltaSeconds / this.morphTimeSeconds;
+      this.interpolationFactor = Math.min(1, this.interpolationFactor);
+      this.interpolateVertices(
+        this.originGeometry,
+        this.targetGeometry,
+        THREE.MathUtils.smootherstep(this.interpolationFactor, 0, 1),
+        this.pointsGeometry
+      );
+    }
+
     // this.meshGeometry.computeVertexNormals();
     // this.meshGeometry.normalizeNormals();
   }
 
-  handleHeightmapChange(heightmap: Float32Array) {
-    // const vertices = this.meshGeometry.getAttribute('position');
-    // for (let i = 0; i < vertices.count; i++) {
-    //   vertices.setY(i, 0);
-    // }
-    // vertices.needsUpdate = true;
+  interpolateVertices(
+    originGeometry: THREE.BufferGeometry,
+    targetGeometry: THREE.BufferGeometry,
+    factor: number,
+    outGeometry: THREE.BufferGeometry
+  ) {
+    const originVertices = originGeometry.getAttribute('position');
+    const targetVertices = targetGeometry.getAttribute('position');
+    const outVertices = outGeometry.getAttribute('position');
+    for (let i = 0; i < originVertices.count; i++) {
+      outVertices.setX(i, THREE.MathUtils.lerp(originVertices.getX(i), targetVertices.getX(i), factor));
+      outVertices.setY(i, THREE.MathUtils.lerp(originVertices.getY(i), targetVertices.getY(i), factor));
+      outVertices.setZ(i, THREE.MathUtils.lerp(originVertices.getZ(i), targetVertices.getZ(i), factor));
+    }
+    outVertices.needsUpdate = true;
+  }
 
-    this.remove(this.terrainGroup);
-    this.buildTerrain(heightmap);
+  setHeightmap(heightmap: Float32Array) {
+    if (this.interpolationFactor < 1) {
+      return false;
+    }
+    this.originGeometry = this.targetGeometry.clone();
+    this.targetGeometry = this.buildPointsGeometry(heightmap);
+    this.interpolationFactor = 0;
   }
 }
