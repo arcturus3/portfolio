@@ -7,9 +7,9 @@ export class Scene extends THREE.Scene {
   meshGeometry!: THREE.BufferGeometry;
   pointsGeometry!: THREE.BufferGeometry;
 
-  originGeometry: THREE.BufferGeometry;
-  targetGeometry: THREE.BufferGeometry;
-  interpolationFactor: number;
+  originHeightmap: Float32Array;
+  targetHeightmap: Float32Array;
+  interpFactor: number;
 
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
@@ -19,8 +19,8 @@ export class Scene extends THREE.Scene {
     this.buildCamera();
     this.buildLights();
     this.buildTerrain(heightmap);
-    this.targetGeometry = this.pointsGeometry.clone();
-    this.interpolationFactor = 1;
+    this.interpFactor = 1;
+    this.targetHeightmap = heightmap;
   }
 
   buildCamera() {
@@ -77,7 +77,7 @@ export class Scene extends THREE.Scene {
       polygonOffset: true,
       polygonOffsetFactor: 2,
       polygonOffsetUnits: 1,
-      visible: false,
+      // visible: false,
     });
 
     const terrain = new THREE.Mesh(meshGeometry, terrainMaterial);
@@ -85,7 +85,7 @@ export class Scene extends THREE.Scene {
     const cover = new THREE.Mesh(meshGeometry, coverMaterial);
 
     const terrainGroup = new THREE.Group();
-    // terrainGroup.add(terrain);
+    terrainGroup.add(terrain);
     terrainGroup.add(points);
     terrainGroup.add(cover);
     this.add(terrainGroup);
@@ -167,44 +167,47 @@ export class Scene extends THREE.Scene {
     const angle = 2 * Math.PI * deltaSeconds / this.rotationTimeSeconds;
     this.terrainGroup.rotateY(angle);
 
-    if (this.interpolationFactor < 1) {
-      this.interpolationFactor += deltaSeconds / this.morphTimeSeconds;
-      this.interpolationFactor = Math.min(1, this.interpolationFactor);
-      this.interpolateVertices(
-        this.originGeometry,
-        this.targetGeometry,
-        THREE.MathUtils.smootherstep(this.interpolationFactor, 0, 1),
-        this.pointsGeometry
+    if (this.interpFactor < 1) {
+      this.interpFactor += deltaSeconds / this.morphTimeSeconds;
+      this.interpFactor = Math.min(1, this.interpFactor);
+      const interpHeightmap = this.lerpHeightmaps(
+        this.originHeightmap,
+        this.targetHeightmap,
+        THREE.MathUtils.smootherstep(this.interpFactor, 0, 1)
       );
+      // calculate final geometry to lerp to for better performance
+      this.applyHeightmap(interpHeightmap, this.pointsGeometry);
+      this.applyHeightmap(interpHeightmap, this.meshGeometry);
     }
-
-    // this.meshGeometry.computeVertexNormals();
-    // this.meshGeometry.normalizeNormals();
   }
 
-  interpolateVertices(
-    originGeometry: THREE.BufferGeometry,
-    targetGeometry: THREE.BufferGeometry,
-    factor: number,
-    outGeometry: THREE.BufferGeometry
-  ) {
-    const originVertices = originGeometry.getAttribute('position');
-    const targetVertices = targetGeometry.getAttribute('position');
-    const outVertices = outGeometry.getAttribute('position');
-    for (let i = 0; i < originVertices.count; i++) {
-      outVertices.setX(i, THREE.MathUtils.lerp(originVertices.getX(i), targetVertices.getX(i), factor));
-      outVertices.setY(i, THREE.MathUtils.lerp(originVertices.getY(i), targetVertices.getY(i), factor));
-      outVertices.setZ(i, THREE.MathUtils.lerp(originVertices.getZ(i), targetVertices.getZ(i), factor));
+  lerpHeightmaps(origin: Float32Array, target: Float32Array, factor: number) {
+    const out = new Float32Array(origin.length);
+    for (let i = 0; i < out.length; i++) {
+      out[i] = THREE.MathUtils.lerp(origin[i], target[i], factor);
     }
-    outVertices.needsUpdate = true;
+    return out;
+  }
+
+  applyHeightmap(heightmap: Float32Array, geometry: THREE.BufferGeometry) {
+    const vertices = geometry.getAttribute('position');
+    for (let i = 0; i < vertices.count; i++) {
+      const x = vertices.getX(i);
+      const z = vertices.getZ(i);
+      const y = this.getHeight(heightmap, x + 0.5, z + 0.5, true);
+      vertices.setY(i, y);
+    }
+    vertices.needsUpdate = true;
+    // geometry.computeVertexNormals();
+    // geometry.normalizeNormals();
   }
 
   setHeightmap(heightmap: Float32Array) {
-    if (this.interpolationFactor < 1) {
+    if (this.interpFactor < 1) {
       return false;
     }
-    this.originGeometry = this.targetGeometry.clone();
-    this.targetGeometry = this.buildPointsGeometry(heightmap);
-    this.interpolationFactor = 0;
+    this.interpFactor = 0;
+    this.originHeightmap = this.targetHeightmap;
+    this.targetHeightmap = heightmap;
   }
 }
