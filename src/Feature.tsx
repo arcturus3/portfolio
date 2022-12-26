@@ -1,9 +1,10 @@
 import {useState, useEffect, useRef} from 'react';
-import {Info, ArrowRight} from 'react-feather';
+import {ArrowRight} from 'react-feather';
 import Chance from 'chance';
 import {Renderer} from './renderer';
 import {Scene} from './scene';
 import {Mountain, mountainData} from './mountainData';
+import { Heightmap } from './heightmap';
 
 export const Feature = () => {
   const shuffledDataRef = useRef<Mountain[]>();
@@ -15,7 +16,7 @@ export const Feature = () => {
     const chance = new Chance();
     shuffledDataRef.current = chance.shuffle(mountainData);
     shuffledDataRef.current = mountainData;
-    const scene = new Scene(shuffledDataRef.current[mountainIndex].heightmap);
+    const scene = new Scene();
     sceneRef.current = scene;
     const renderer = new Renderer(scene);
     window.addEventListener('resize', renderer.handleResize);
@@ -24,7 +25,7 @@ export const Feature = () => {
   }, []);
 
   useEffect(() => {
-    sceneRef.current!.setHeightmap(shuffledDataRef.current[mountainIndex].heightmap);
+    sceneRef.current!.setHeightmap(new Heightmap(shuffledDataRef.current[mountainIndex].heightmap));
   }, [mountainIndex]);
 
   return (
@@ -50,31 +51,22 @@ export const Feature = () => {
       </div>
       <div style={{
         position: 'fixed',
-        left: 0,
-        right: 0,
+        left: '50%',
         bottom: 20,
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 10,
+        transform: 'translateX(-50%)',
+        fontFamily: '"Courier Prime", monospace',
+        textAlign: 'center',
       }}>
         <div style={{
-          width: 200,
-          fontFamily: '"Courier Prime", monospace',
-          textAlign: 'center',
-          position: 'relative',
-          top: 2,
+          fontSize: 17,
+          marginBottom: 4,
         }}>
-          <div style={{
-            fontSize: 17,
-            marginBottom: 4,
-          }}>
-            {shuffledDataRef.current?.[mountainIndex].name}
-          </div>
-          <div style={{
-            fontSize: 14,
-          }}>
-            {shuffledDataRef.current?.[mountainIndex].elevation} m
-          </div>
+          {shuffledDataRef.current?.[mountainIndex].name}
+        </div>
+        <div style={{
+          fontSize: 14,
+        }}>
+          {shuffledDataRef.current?.[mountainIndex].elevation} m
         </div>
       </div>
     </>

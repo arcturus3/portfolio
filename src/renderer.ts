@@ -4,16 +4,21 @@ import Stats from 'stats.js';
 
 const stats = new Stats();
 stats.showPanel(0);
-// document.body.appendChild(stats.dom);
+const elem = stats.dom;
+elem.style.left = 'initial';
+elem.style.right = '0';
+document.body.appendChild(elem);
 
 export class Renderer {
   renderer;
   scene;
   clock;
+  camera;
 
   constructor(scene: Scene) {
     this.render = this.render.bind(this);
     this.handleResize = this.handleResize.bind(this);
+
     this.scene = scene;
     this.clock = new THREE.Clock();
     this.renderer = new THREE.WebGLRenderer({
@@ -21,6 +26,13 @@ export class Renderer {
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     // this.renderer.setPixelRatio(2);
+
+    const aspect = window.innerWidth / window.innerHeight;
+    const camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 100);
+    camera.position.y = 0.75;
+    camera.position.z = 1.5;
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.camera = camera;
   }
 
   getRenderTarget() {
@@ -32,7 +44,7 @@ export class Renderer {
     stats.begin();
     this.scene.update(this.clock.getDelta());
     stats.end();
-    this.renderer.render(this.scene, this.scene.getCamera());
+    this.renderer.render(this.scene, this.camera);
   }
 
   handleResize() {
