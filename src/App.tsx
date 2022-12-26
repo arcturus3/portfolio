@@ -31,10 +31,10 @@ export const App = () => {
           fontSize: 14,
           fontWeight: 400,
         }}>
-          &gt; Hi, I'm studying computer science at Princeton University.
+          <span style={{fontFamily: '"Courier Prime", monospace',}}>&gt; </span>Hi, I'm studying computer science at Princeton University.
           <br />
           <div style={{height: 4}} />
-          &gt; These are my favorite mountains I've hiked or skied, just for fun.
+          <span style={{fontFamily: '"Courier Prime", monospace',}}>&gt; </span>These are some mountains I've hiked or skied, just for fun.
         </span>
       </div>
       <div style={{
