@@ -28,7 +28,7 @@ export class Renderer {
     // this.renderer.setPixelRatio(2);
 
     const aspect = window.innerWidth / window.innerHeight;
-    const camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 100);
+    const camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 1000);
     camera.position.y = 0.75;
     camera.position.z = 1.5;
     camera.lookAt(new THREE.Vector3(0, 0, 0));

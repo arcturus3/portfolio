@@ -27,7 +27,6 @@ export class Scene extends THREE.Scene {
     this.buildScene();
   }
 
-  // need to fix bright highlights on mesh
   buildScene() {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
@@ -38,7 +37,7 @@ export class Scene extends THREE.Scene {
       size: 0.001,
     });
     const terrainMaterial = new THREE.MeshStandardMaterial({
-      color: 0x000000,
+      color: 0xffffff,
       transparent: true,
       alphaMap: alphaMap,
       polygonOffset: true,
@@ -60,20 +59,9 @@ export class Scene extends THREE.Scene {
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
-    const light = new THREE.PointLight();
-    light.intensity = 4;
-    light.position.x = 100;
-    light.position.y = 100;
-    this.add(light);
-
-    const temp = new THREE.AmbientLight();
-    temp.intensity = 2;
-    this.add(temp);
-
-    const light2 = new THREE.PointLight();
-    light2.intensity = 5;
-    light.position.y = 100;
-    this.add(light2);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    directionalLight.position.set(1, 1, 0);
+    this.add(directionalLight);
   }
 
   generateMeshGeometry() {
