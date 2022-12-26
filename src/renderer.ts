@@ -17,7 +17,7 @@ export class Renderer {
 
   constructor(scene: Scene) {
     this.render = this.render.bind(this);
-    this.handleResize = this.handleResize.bind(this);
+    this.resize = this.resize.bind(this);
 
     this.scene = scene;
     this.clock = new THREE.Clock();
@@ -47,10 +47,9 @@ export class Renderer {
     this.renderer.render(this.scene, this.camera);
   }
 
-  handleResize() {
+  resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    const camera = this.scene.getCamera();
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
   }
 }

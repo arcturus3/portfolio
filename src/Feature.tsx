@@ -19,7 +19,7 @@ export const Feature = () => {
     const scene = new Scene();
     sceneRef.current = scene;
     const renderer = new Renderer(scene);
-    window.addEventListener('resize', renderer.handleResize);
+    window.addEventListener('resize', renderer.resize);
     rootRef.current!.appendChild(renderer.getRenderTarget());
     renderer.render();
   }, []);
