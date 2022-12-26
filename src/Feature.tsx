@@ -41,33 +41,41 @@ export const Feature = () => {
       />
       <div style={{
         position: 'fixed',
+        right: 20,
+        bottom: 20,
+      }}>
+        <ArrowRight onClick={() => {
+          setMountainIndex(prev => (prev + 1) % shuffledDataRef.current!.length);
+        }} />
+      </div>
+      <div style={{
+        position: 'fixed',
         left: 0,
         right: 0,
-        bottom: 40,
+        bottom: 20,
         display: 'flex',
         justifyContent: 'center',
         gap: 10,
       }}>
-        <Info size={20} />
-        <div>
+        <div style={{
+          width: 200,
+          fontFamily: '"Courier Prime", monospace',
+          textAlign: 'center',
+          position: 'relative',
+          top: 2,
+        }}>
           <div style={{
-            fontFamily: '"Courier Prime", monospace',
-            textAlign: 'center'
+            fontSize: 17,
+            marginBottom: 4,
           }}>
             {shuffledDataRef.current?.[mountainIndex].name}
           </div>
           <div style={{
-            fontFamily: '"Courier Prime", monospace',
-            fontSize: 12,
-            textAlign: 'center',
+            fontSize: 14,
           }}>
             {shuffledDataRef.current?.[mountainIndex].elevation} m
           </div>
         </div>
-        <ArrowRight size={20} onClick={() => {
-          setMountainIndex(prev => (prev + 1) % shuffledDataRef.current!.length);
-          console.log(mountainIndex);
-        }} />
       </div>
     </>
   );
