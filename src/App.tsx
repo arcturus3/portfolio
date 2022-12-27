@@ -1,10 +1,10 @@
 import {FileText, GitHub, Linkedin} from 'react-feather';
-import {Feature} from './Feature';
+import {Mountains} from './Mountains';
 
 export const App = () => {
   return (
     <>
-      <Feature />
+      <Mountains />
       <div style={{
         position: 'fixed',
         left: 20,

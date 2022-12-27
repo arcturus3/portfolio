@@ -1,3 +1,5 @@
+import Chance from 'chance';
+import { Heightmap } from './heightmap';
 import rawMountainData from '/generated/mountains.json?raw';
 
 type BaseMountain = {
@@ -13,17 +15,27 @@ type RawMountain = BaseMountain & {
 };
 
 export type Mountain = BaseMountain & {
-  heightmap: Float32Array,
+  heightmap: Heightmap,
+};
+
+const parseBase64 = (data: string): ArrayBuffer => {
+  const bytes = window.atob(data);
+  const buffer = Uint8Array.from(bytes, c => c.charCodeAt(0)).buffer;
+  return buffer;
 };
 
 const parsedMountainData: RawMountain[] = JSON.parse(rawMountainData);
 
-export const mountainData: Mountain[] = parsedMountainData.map(mountain => {
-  const bytes = window.atob(mountain.heightmap);
-  const buffer = Uint8Array.from(bytes, c => c.charCodeAt(0)).buffer;
+const mountainData: Mountain[] = parsedMountainData.map(mountain => {
+  const buffer = parseBase64(mountain.heightmap);
   const array = new Float32Array(buffer);
   return {
     ...mountain,
-    heightmap: array
+    heightmap: new Heightmap(array)
   };
 });
+
+const chance = new Chance();
+const shuffledMountainData = chance.shuffle(mountainData);
+
+export {shuffledMountainData as mountainData};

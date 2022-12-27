@@ -1,21 +1,15 @@
 import {useState, useEffect, useRef} from 'react';
 import {ArrowRight} from 'react-feather';
-import Chance from 'chance';
 import {Renderer} from './renderer';
 import {Scene} from './scene';
-import {Mountain, mountainData} from './mountainData';
-import { Heightmap } from './heightmap';
+import {mountainData} from './mountainData';
 
-export const Feature = () => {
-  const shuffledDataRef = useRef<Mountain[]>();
+export const Mountains = () => {
   const sceneRef = useRef<Scene>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mountainIndex, setMountainIndex] = useState(0);
 
   useEffect(() => {
-    const chance = new Chance();
-    shuffledDataRef.current = chance.shuffle(mountainData);
-    shuffledDataRef.current = mountainData;
     const scene = new Scene();
     sceneRef.current = scene;
     const renderer = new Renderer(canvasRef.current!, scene);
@@ -23,7 +17,7 @@ export const Feature = () => {
   }, []);
 
   useEffect(() => {
-    sceneRef.current!.setHeightmap(new Heightmap(shuffledDataRef.current[mountainIndex].heightmap));
+    sceneRef.current!.setHeightmap(mountainData[mountainIndex].heightmap);
   }, [mountainIndex]);
 
   return (
@@ -42,7 +36,7 @@ export const Feature = () => {
         bottom: 20,
       }}>
         <ArrowRight onClick={() => {
-          setMountainIndex(prev => (prev + 1) % shuffledDataRef.current!.length);
+          setMountainIndex(prev => (prev + 1) % mountainData.length);
         }} />
       </div>
       <div style={{
@@ -57,12 +51,12 @@ export const Feature = () => {
           fontSize: 17,
           marginBottom: 4,
         }}>
-          {shuffledDataRef.current?.[mountainIndex].name}
+          {mountainData[mountainIndex].name}
         </div>
         <div style={{
           fontSize: 14,
         }}>
-          {shuffledDataRef.current?.[mountainIndex].elevation} m
+          {mountainData[mountainIndex].elevation} m
         </div>
       </div>
     </>
