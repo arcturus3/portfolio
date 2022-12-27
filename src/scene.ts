@@ -60,7 +60,7 @@ export class Scene extends THREE.Scene {
     this.terrainGroup = terrainGroup;
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
-    directionalLight.position.set(1, 1, 0);
+    directionalLight.position.set(2, 1, 0);
     this.add(directionalLight);
   }
 
@@ -90,19 +90,18 @@ export class Scene extends THREE.Scene {
   }
 
   applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry) {
+    const maxHeight = heightmap.getHeight(0, 0);
     const vertices = geometry.getAttribute('position');
     for (let i = 0; i < vertices.count; i++) {
       const x = vertices.getX(i);
       const z = vertices.getZ(i);
-      const y = heightmap.getHeight(x, z);
+      const y = heightmap.getHeight(x, z) - maxHeight;
       vertices.setY(i, y);
     }
     vertices.needsUpdate = true;
   }
 
   setHeightmap(heightmap: Heightmap) {
-    console.log(heightmap);
-    console.log(this.morphFactor);
     if (this.morphFactor < 1) {
       return;
     }

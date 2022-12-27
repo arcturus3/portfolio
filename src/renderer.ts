@@ -15,41 +15,60 @@ export class Renderer {
   clock;
   camera;
 
-  constructor(scene: Scene) {
+  constructor(canvas: HTMLCanvasElement, scene: Scene) {
     this.render = this.render.bind(this);
     this.resize = this.resize.bind(this);
 
     this.scene = scene;
     this.clock = new THREE.Clock();
     this.renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
       antialias: true,
     });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // this.renderer.setPixelRatio(2);
 
-    const aspect = window.innerWidth / window.innerHeight;
-    const camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 1000);
-    camera.position.y = 0.75;
-    camera.position.z = 1.5;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    const camera = new THREE.PerspectiveCamera();
+    camera.near = 0.01;
+    camera.position.set(0, 0.75, 2);
+    camera.lookAt(new THREE.Vector3(0, -0.25, 0));
+    camera.translateZ(-1);
     this.camera = camera;
   }
 
-  getRenderTarget() {
-    return this.renderer.domElement;
+  getFov(aspect: number) {
+    const minHorizontalFov = 60;
+    const minVerticalFov = 60;
+    if (aspect >= minHorizontalFov / minVerticalFov) {
+      const verticalFov = minVerticalFov;
+      return verticalFov
+    }
+    else {
+      const horizontalFov = minHorizontalFov;
+      const horizontalFovRad = THREE.MathUtils.degToRad(horizontalFov);
+      const verticalFovRad = Math.atan(Math.tan(horizontalFovRad / 2) / aspect) * 2;
+      const verticalFov = THREE.MathUtils.radToDeg(verticalFovRad);
+      return verticalFov;
+    }
+  }
+
+  resize() {
+    const canvas = this.renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    if (canvas.width !== width || canvas.height !== height) {
+      this.renderer.setSize(width, height, false);
+      const aspect = width / height;
+      this.camera.aspect = aspect;
+      this.camera.fov = this.getFov(aspect);
+      this.camera.updateProjectionMatrix();
+    }
   }
 
   render() {
     requestAnimationFrame(this.render);
     stats.begin();
+    this.resize();
     this.scene.update(this.clock.getDelta());
-    stats.end();
     this.renderer.render(this.scene, this.camera);
-  }
-
-  resize() {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    stats.end();
   }
 }

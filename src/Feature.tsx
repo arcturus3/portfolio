@@ -9,7 +9,7 @@ import { Heightmap } from './heightmap';
 export const Feature = () => {
   const shuffledDataRef = useRef<Mountain[]>();
   const sceneRef = useRef<Scene>();
-  const rootRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mountainIndex, setMountainIndex] = useState(0);
 
   useEffect(() => {
@@ -18,9 +18,7 @@ export const Feature = () => {
     shuffledDataRef.current = mountainData;
     const scene = new Scene();
     sceneRef.current = scene;
-    const renderer = new Renderer(scene);
-    window.addEventListener('resize', renderer.resize);
-    rootRef.current!.appendChild(renderer.getRenderTarget());
+    const renderer = new Renderer(canvasRef.current!, scene);
     renderer.render();
   }, []);
 
@@ -30,14 +28,12 @@ export const Feature = () => {
 
   return (
     <>
-      <div
-        ref={rootRef}
+      <canvas
+        ref={canvasRef}
         style={{
           position: 'fixed',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
+          width: '100%',
+          height: '100%',
         }}
       />
       <div style={{
