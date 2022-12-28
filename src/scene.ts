@@ -17,6 +17,7 @@ export class Scene extends THREE.Scene {
 
   pointCount = 50000;
   meshSize = 99; // one less than heightmap size for exact vertex positions
+  alphaMapSize = 1000;
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
 
@@ -30,6 +31,7 @@ export class Scene extends THREE.Scene {
   buildScene() {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
+    // const alphaMap = this.generateAlphaMap();
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
@@ -59,7 +61,7 @@ export class Scene extends THREE.Scene {
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.025);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
     directionalLight.position.set(2, 1, 0);
     this.add(ambientLight, directionalLight);
@@ -89,6 +91,31 @@ export class Scene extends THREE.Scene {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', vertices);
     this.pointsGeometry = geometry;
+  }
+
+  generateAlphaMap() {
+    const size = this.alphaMapSize;
+    const center = (size - 1) / 2;
+    const data = new Uint8Array(size * size * 4);
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        let value;
+        if (Math.hypot(i - center, j - center) <= center) {
+          value = 255;
+        }
+        else {
+          value = 0;
+        }
+        const index = i * size + j;
+        data[index] = value;
+        data[index + 1] = value;
+        data[index + 2] = value;
+        data[index + 3] = value;
+      }
+    }
+    const texture = new THREE.DataTexture(data, size, size);
+    texture.needsUpdate = true;
+    return texture;
   }
 
   applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry) {
