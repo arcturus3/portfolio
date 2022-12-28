@@ -15,7 +15,7 @@ export class Scene extends THREE.Scene {
   targetMeshGeometry!: THREE.BufferGeometry;
   morphFactor = 1;
 
-  pointCount = 25000;
+  pointCount = 50000;
   meshSize = 99; // one less than heightmap size for exact vertex positions
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
@@ -33,7 +33,7 @@ export class Scene extends THREE.Scene {
     const pointsMaterial = new THREE.PointsMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.1,
       size: 0.001,
     });
     const terrainMaterial = new THREE.MeshStandardMaterial({
@@ -78,8 +78,8 @@ export class Scene extends THREE.Scene {
     const vertices = new THREE.BufferAttribute(buffer, 3);
     let i = 0;
     while (i < this.pointCount) {
-      const x = chance.normal({dev: 0.33});
-      const z = chance.normal({dev: 0.33});
+      const x = chance.normal({dev: 0.25});
+      const z = chance.normal({dev: 0.25});
       if (Math.hypot(x, z) > 1) {
         continue;
       }
