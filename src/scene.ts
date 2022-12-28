@@ -103,7 +103,7 @@ export class Scene extends THREE.Scene {
 
   setHeightmap(heightmap: Heightmap) {
     if (this.morphFactor < 1) {
-      return;
+      return false;
     }
     this.morphFactor = 0;
     this.originPointsGeometry = this.pointsGeometry.clone();
@@ -112,6 +112,7 @@ export class Scene extends THREE.Scene {
     this.targetMeshGeometry = this.meshGeometry.clone();
     this.applyHeightmap(heightmap, this.targetPointsGeometry);
     this.applyHeightmap(heightmap, this.targetMeshGeometry);
+    return true;
   }
 
   lerpVertices(out: THREE.BufferGeometry, origin: THREE.BufferGeometry, target: THREE.BufferGeometry, factor: number) {
