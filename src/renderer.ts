@@ -29,7 +29,7 @@ export class Renderer {
 
     const camera = new THREE.PerspectiveCamera();
     camera.near = 0.01;
-    camera.position.set(0, 0.6, 2.2);
+    camera.position.set(0, 0.6, 2.3);
     camera.lookAt(new THREE.Vector3(0, -0.25, 0));
     this.camera = camera;
   }

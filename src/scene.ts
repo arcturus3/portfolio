@@ -68,6 +68,7 @@ export class Scene extends THREE.Scene {
   generateMeshGeometry() {
     const geometry = new THREE.PlaneGeometry(2, 2, this.meshSize, this.meshSize);
     geometry.rotateX(-Math.PI / 2);
+    geometry.translate(0, -0.5, 0);
     this.meshGeometry = geometry;
   }
 
@@ -82,7 +83,7 @@ export class Scene extends THREE.Scene {
       if (Math.hypot(x, z) > 1) {
         continue;
       }
-      vertices.setXYZ(i, x, 0, z);
+      vertices.setXYZ(i, x, -0.5, z);
       i++;
     }
     const geometry = new THREE.BufferGeometry();
