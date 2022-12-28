@@ -2,20 +2,16 @@ import * as THREE from 'three';
 import {Scene} from './scene';
 import Stats from 'stats.js';
 
-const stats = new Stats();
-stats.showPanel(0);
-const elem = stats.dom;
-elem.style.left = 'initial';
-elem.style.right = '0';
-document.body.appendChild(elem);
+
 
 export class Renderer {
   renderer;
   scene;
   clock;
   camera;
+  stats;
 
-  constructor(canvas: HTMLCanvasElement, scene: Scene) {
+  constructor(canvas: HTMLCanvasElement, scene: Scene, debug=false) {
     this.render = this.render.bind(this);
     this.resize = this.resize.bind(this);
 
@@ -32,6 +28,15 @@ export class Renderer {
     camera.position.set(0, 0.6, 2.3);
     camera.lookAt(new THREE.Vector3(0, -0.25, 0));
     this.camera = camera;
+
+    this.stats = new Stats();
+    this.stats.showPanel(0);
+    const statsElement = this.stats.dom;
+    statsElement.style.left = 'unset';
+    statsElement.style.right = '0';
+    if (debug) {
+      document.body.appendChild(statsElement);
+    }
   }
 
   getFov(aspect: number) {
@@ -65,10 +70,10 @@ export class Renderer {
 
   render() {
     requestAnimationFrame(this.render);
-    stats.begin();
+    this.stats.begin();
     this.resize();
     this.scene.update(this.clock.getDelta());
     this.renderer.render(this.scene, this.camera);
-    stats.end();
+    this.stats.end();
   }
 }
