@@ -46,7 +46,7 @@ export class Scene extends THREE.Scene {
     });
     // to prevent underside of terrain showing due to transparent edges
     const coverMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
+      color: 0x101010,
       polygonOffset: true,
       polygonOffsetFactor: 2,
       polygonOffsetUnits: 1,
@@ -59,9 +59,10 @@ export class Scene extends THREE.Scene {
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
     directionalLight.position.set(2, 1, 0);
-    this.add(directionalLight);
+    this.add(ambientLight, directionalLight);
   }
 
   generateMeshGeometry() {

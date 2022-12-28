@@ -25,18 +25,18 @@ export class Renderer {
       canvas: canvas,
       antialias: true,
     });
+    this.renderer.setClearColor(0x101010);
 
     const camera = new THREE.PerspectiveCamera();
     camera.near = 0.01;
-    camera.position.set(0, 0.75, 2);
+    camera.position.set(0, 0.6, 2.2);
     camera.lookAt(new THREE.Vector3(0, -0.25, 0));
-    camera.translateZ(-1);
     this.camera = camera;
   }
 
   getFov(aspect: number) {
-    const minHorizontalFov = 60;
-    const minVerticalFov = 60;
+    const minHorizontalFov = 40;
+    const minVerticalFov = 40;
     if (aspect >= minHorizontalFov / minVerticalFov) {
       const verticalFov = minVerticalFov;
       return verticalFov

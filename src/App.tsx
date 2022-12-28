@@ -1,5 +1,6 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, ReactNode} from 'react';
 import {FileText, GitHub, Linkedin, MapPin, ArrowRight} from 'react-feather';
+import classNames from 'classnames';
 import {mountainData} from './mountainData';
 import {Renderer} from './renderer';
 import {Scene} from './scene';
@@ -35,7 +36,7 @@ export const App = () => {
   }, []);
 
   return (
-    <>
+    <div>
       <canvas
         ref={canvasRef}
         className='fixed w-full h-full'
@@ -52,54 +53,66 @@ export const App = () => {
         </span>
       </div>
       <div className='fixed left-8 bottom-8 flex flex-col gap-5'>
-        <a
-          href='/resume.pdf'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <FileText />
-        </a>
-        <a
-          href='https://github.com/arcturus3'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <GitHub />
-        </a>
-        <a
-          href='https://www.linkedin.com/in/artischmidt'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <Linkedin />
-        </a>
+        <Link
+          url='/resume.pdf'
+          text='Resume'
+          icon={<FileText />}
+          iconPosition='left'
+        />
+        <Link
+          url='https://github.com/arcturus3'
+          text='GitHub'
+          icon={<GitHub />}
+          iconPosition='left'
+        />
+        <Link
+          url='https://www.linkedin.com/in/artischmidt'
+          text='LinkedIn'
+          icon={<Linkedin />}
+          iconPosition='left'
+        />
       </div>
-      <div className='fixed left-1/2 bottom-8 -translate-x-1/2 font-mono text-center flex flex-row'>
-        <a
-          href={
-            `https://www.google.com/maps/@` +
-            `?api=1&map_action=map&basemap=terrain&zoom=15` +
-            `&center=${mountainData[mountainIndex].coords[0]}%2c${mountainData[mountainIndex].coords[1]}`
-          }
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          <MapPin />
-        </a>
-        <div className='w-52'>
-          <span className='text-lg'>
-            {mountainData[mountainIndex].name}
-          </span>
-          <br />
-          <span className='text-base'>
-            {mountainData[mountainIndex].elevation} m
-          </span>
-        </div>
+      <div className='fixed right-8 bottom-8 flex flex-col gap-5 items-end'>
         <ArrowRight
           className='cursor-pointer'
           onClick={updateMountain}
         />
+        <Link
+          url={
+            `https://www.google.com/maps/@` +
+            `?api=1&map_action=map&basemap=terrain&zoom=15` +
+            `&center=${mountainData[mountainIndex].coords[0]}%2c${mountainData[mountainIndex].coords[1]}`
+          }
+          text={mountainData[mountainIndex].name}
+          icon={<MapPin />}
+          iconPosition='right'
+        />
       </div>
-    </>
+    </div>
+  );
+};
+
+type LinkProps = {
+  url: string,
+  text: string,
+  icon: ReactNode,
+  iconPosition: 'left' | 'right',
+};
+
+const Link = (props: LinkProps) => {
+  return (
+    <a
+      className={classNames(
+        'flex',
+        'gap-3',
+        props.iconPosition === 'left' ? 'flex-row' : 'flex-row-reverse',
+      )}
+      href={props.url}
+      target='_blank'
+      rel='noopener noreferrer'
+    >
+      {props.icon}
+      <span className='font-mono text-lg leading-none'>{props.text}</span>
+    </a>
   );
 };
