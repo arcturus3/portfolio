@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
-import {FileText, GitHub, Linkedin, ArrowRight} from 'react-feather';
+import {FileText, GitHub, Linkedin, MapPin, ArrowRight} from 'react-feather';
 import {mountainData} from './mountainData';
 import {Renderer} from './renderer';
 import {Scene} from './scene';
@@ -19,7 +19,7 @@ export const App = () => {
     if (success) {
       setMountainIndex(nextIndex);
       window.clearTimeout(timeoutIdRef.current);
-      timeoutIdRef.current = window.setTimeout(updateMountain, 10000);
+      timeoutIdRef.current = window.setTimeout(updateMountain, 60000);
     }
   };
 
@@ -38,88 +38,67 @@ export const App = () => {
     <>
       <canvas
         ref={canvasRef}
-        style={{
-          position: 'fixed',
-          width: '100%',
-          height: '100%',
-        }}
+        className='fixed w-full h-full'
       />
-      <div style={{
-        position: 'fixed',
-        left: 20,
-        top: 20,
-        // writingMode: 'vertical-rl',
-        // transform: 'rotate(180deg)'
-      }}>
-        <span style={{
-          fontFamily: '"Inter", sans-serif',
-          fontSize: 24,
-          fontWeight: 600
-        }}>Arti Schmidt</span>
-        <span style={{
-          fontFamily: '"Courier Prime", monospace',
-          fontSize: 20,
-          whiteSpace: 'pre',
-          position: 'relative',
-          bottom: 4,
-        }}> // Software Engineer</span>
+      <div className='fixed left-8 top-8'>
+        <span className='font-sans font-semibold text-3xl align-text-bottom'>Arti Schmidt</span>
+        <span className='font-mono text-2xl align-text-bottom'> // Software Engineer</span>
         <br />
         <br />
-        <span style={{
-          fontFamily: '"Inter", sans-serif',
-          fontSize: 14,
-          fontWeight: 400,
-        }}>
-          <span style={{fontFamily: '"Courier Prime", monospace',}}>&gt; </span>Hi, I'm studying computer science at Princeton University.
+        <span className='font-sans text-base'>
+          <span className='font-mono'>&gt; </span>Hi, I'm studying computer science at Princeton University.
           <br />
-          <div style={{height: 4}} />
-          <span style={{fontFamily: '"Courier Prime", monospace',}}>&gt; </span>These are some mountains I've hiked or skied, just for fun.
+          <span className='font-mono'>&gt; </span>These are some mountains I've hiked or skied, just for fun.
         </span>
       </div>
-      <div style={{
-        position: 'fixed',
-        left: 20,
-        bottom: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-      }}>
-        <a href="/resume.pdf">
+      <div className='fixed left-8 bottom-8 flex flex-col gap-5'>
+        <a
+          href='/resume.pdf'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
           <FileText />
         </a>
-        <a href="https://github.com/arcturus3">
+        <a
+          href='https://github.com/arcturus3'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
           <GitHub />
         </a>
-        <a href="https://www.linkedin.com/in/artischmidt">
+        <a
+          href='https://www.linkedin.com/in/artischmidt'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
           <Linkedin />
         </a>
       </div>
-      <div style={{
-        position: 'fixed',
-        right: 20,
-        bottom: 20,
-      }}>
-        <ArrowRight onClick={updateMountain} />
-      </div>
-      <div style={{
-        position: 'fixed',
-        left: '50%',
-        bottom: 20,
-        transform: 'translateX(-50%)',
-        fontFamily: '"Courier Prime", monospace',
-        textAlign: 'center',
-      }}>
-        <div style={{
-          fontSize: 17,
-          marginBottom: 4,
-        }}>
-          {mountainData[mountainIndex].name}
+      <div className='fixed left-1/2 bottom-8 -translate-x-1/2 font-mono text-center flex flex-row'>
+        <a
+          href={
+            `https://www.google.com/maps/@` +
+            `?api=1&map_action=map&basemap=terrain&zoom=15` +
+            `&center=${mountainData[mountainIndex].coords[0]}%2c${mountainData[mountainIndex].coords[1]}`
+          }
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <MapPin />
+        </a>
+        <div className='w-52'>
+          <span className='text-lg'>
+            {mountainData[mountainIndex].name}
+          </span>
+          <br />
+          <span className='text-base'>
+            {mountainData[mountainIndex].elevation} m
+          </span>
         </div>
-        <div style={{
-          fontSize: 14,
-        }}>
-          {mountainData[mountainIndex].elevation} m
-        </div>
+        <ArrowRight
+          className='cursor-pointer'
+          onClick={updateMountain}
+        />
       </div>
     </>
   );

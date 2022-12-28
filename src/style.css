@@ -1,8 +1,7 @@
-body {
-  margin: 0;
-  color: white;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-a {
+body {
   color: white;
 }
