@@ -9,6 +9,9 @@ module.exports = {
       'sans': ['Inter', 'sans-serif'],
       'mono': ['Courier Prime', 'monospace'],
     },
+    listStyleType: {
+      'block-quote': '"> "',
+    },
     extend: {},
   },
   plugins: [],

@@ -20,7 +20,7 @@ export const App = () => {
     if (success) {
       setMountainIndex(nextIndex);
       window.clearTimeout(timeoutIdRef.current);
-      timeoutIdRef.current = window.setTimeout(updateMountain, 60000);
+      timeoutIdRef.current = window.setTimeout(updateMountain, 30000);
     }
   };
 
@@ -42,14 +42,21 @@ export const App = () => {
         className='fixed w-full h-full'
       />
       <div className='fixed left-8 top-8'>
-        <span className='font-sans font-semibold text-3xl align-text-bottom'>Arti Schmidt</span>
-        <span className='font-mono text-2xl align-text-bottom'> // Software Engineer</span>
-        <br />
+        <span className='font-sans font-semibold text-3xl align-text-bottom inline-block mb-2 mr-3'>Arti Schmidt</span>
+        <span className='font-mono text-xl align-text-bottom inline-block mb-2'>// Software Engineer</span>
         <br />
         <span className='font-sans text-base'>
-          <span className='font-mono'>&gt; </span>Hi, I'm studying computer science at Princeton University.
-          <br />
-          <span className='font-mono'>&gt; </span>These are some mountains I've hiked or skied, just for fun.
+          {[
+            "Hi, I'm studying computer science at Princeton University.",
+            "I'm passionate about building things with code.",
+            "I'm especially interested in web apps, games, machine learning, and robotics.",
+            "I love the outdoors; these are some of my favorite mountains.",
+          ].map((line, i) => (
+            <div key={i}>
+              <span className='opacity-100 whitespace-pre'>&gt;  </span>
+              <span className='opacity-75'>{line}</span>
+            </div>
+          ))}
         </span>
       </div>
       <div className='fixed left-8 bottom-8 flex flex-col gap-5'>
@@ -112,7 +119,7 @@ const Link = (props: LinkProps) => {
       rel='noopener noreferrer'
     >
       {props.icon}
-      <span className='font-mono text-lg leading-none'>{props.text}</span>
+      <span className='font-mono text-lg opacity-75'>{props.text}</span>
     </a>
   );
 };
