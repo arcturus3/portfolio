@@ -7,6 +7,13 @@
     "radius": 2000
   },
   {
+    "id": "haleakala",
+    "name": "Haleakala",
+    "coords": [20.709718, -156.253331],
+    "elevation": 3055,
+    "radius": 10000
+  },
+  {
     "id": "mauna_kea",
     "name": "Mauna Kea",
     "coords": [19.820679, -155.468024],

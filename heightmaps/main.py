@@ -147,7 +147,7 @@ for mountain in mountains:
     dem_filename = os.path.join('data/dems', mountain['id'] + '.tif')
     mercator_filename = os.path.join('data/mercator_dems', mountain['id'] + '.tif')
 
-    # get_dem(dem_filename, mountain['coords'], 1000)
+    # get_dem(dem_filename, mountain['coords'], mountain['radius'])
     reproject_dem(dem_filename, mercator_filename, CRS.from_epsg(3857))
 
     heightmap = read_dem(mercator_filename)
