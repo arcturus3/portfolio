@@ -10,23 +10,25 @@ from rasterio.crs import CRS
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from PIL import Image
 
+import aiohttp
+import asyncio
 
-def get_dem(dem_filename, center, radius):
+
+async def fetch_dem(http_session, dst_filename, center, radius):
     distance = geopy.distance.distance(meters=radius)
-    response = requests.get(
-        'https://portal.opentopography.org/API/globaldem',
-        {
-            'API_Key': os.environ['OPEN_TOPOGRAPHY_API_KEY'],
-            'demtype': 'COP30',
-            'outputFormat': 'GTiff',
-            'north': distance.destination(center, bearing=0).latitude,
-            'south': distance.destination(center, bearing=180).latitude,
-            'east': distance.destination(center, bearing=90).longitude,
-            'west': distance.destination(center, bearing=270).longitude,
-        }
-    )
-    with open(dem_filename, 'wb') as file:
-        file.write(response.content)
+    url = 'https://portal.opentopography.org/API/globaldem'
+    params = {
+        'API_Key': os.environ['OPEN_TOPOGRAPHY_API_KEY'],
+        'demtype': 'COP30',
+        'outputFormat': 'GTiff',
+        'north': distance.destination(center, bearing=0).latitude,
+        'east': distance.destination(center, bearing=90).longitude,
+        'south': distance.destination(center, bearing=180).latitude,
+        'west': distance.destination(center, bearing=270).longitude,
+    }
+    async with http_session.get(url, params=params) as response:
+        with open(dst_filename, 'wb') as file:
+            file.write(await response.read())
 
 
 def reproject_dem(src_filename, dst_filename, dst_crs):
@@ -105,18 +107,30 @@ dropoff_factor = 0.25
 with open('mountains.json') as file:
     mountains = json.load(file)
 
-for mountain in mountains:
-    dem_filename = os.path.join('data/dems', mountain['id'] + '.tif')
-    mercator_filename = os.path.join('data/mercator_dems', mountain['id'] + '.tif')
 
-    # get_dem(dem_filename, mountain['coords'], mountain['radius'])
-    reproject_dem(dem_filename, mercator_filename, CRS.from_epsg(3857))
+async def fetch_dems():
+    async with aiohttp.ClientSession() as session:
+        requests = []
+        for mountain in mountains:
+            dem_filename = os.path.join('data/dems', mountain['id'] + '.tif')
+            requests.append(fetch_dem(session, dem_filename, mountain['coords'], mountain['radius']))
+        await asyncio.gather(*requests)
 
-    heightmap = read_dem(mercator_filename)
-    heightmap = resize_heightmap(heightmap, size_pixels)
-    heightmap = rescale_elevations(heightmap, mountain['radius'] * 2)
-    mountain['heightmap'] = encode_heightmap(heightmap)
-    write_image(os.path.join('data/heightmaps', mountain['id'] + '.png'), heightmap)
 
-with open('../generated/mountains.json', 'w') as file:
-    json.dump(mountains, file)
+async def main():
+
+    await fetch_dems()
+    for mountain in mountains:
+        dem_filename = os.path.join('data/dems', mountain['id'] + '.tif')
+        mercator_filename = os.path.join('data/mercator_dems', mountain['id'] + '.tif')
+        reproject_dem(dem_filename, mercator_filename, CRS.from_epsg(3857))
+        heightmap = read_dem(mercator_filename)
+        heightmap = resize_heightmap(heightmap, size_pixels)
+        heightmap = rescale_elevations(heightmap, mountain['radius'] * 2)
+        mountain['heightmap'] = encode_heightmap(heightmap)
+        write_image(os.path.join('data/heightmaps', mountain['id'] + '.png'), heightmap)
+
+    with open('../generated/mountains.json', 'w') as file:
+        json.dump(mountains, file)
+
+asyncio.run(main())
