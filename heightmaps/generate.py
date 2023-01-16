@@ -102,10 +102,10 @@ def encode_heightmap(heightmap):
 
 HEIGHTMAP_SIZE = 100
 MOUNTAIN_CONFIG_FILENAME = 'mountain_config.json'
-MOUNTAIN_DATA_FILENAME = 'generated/mountain_data.json'
-RAW_DEMS_DIR = 'generated/raw_dems'
-DEMS_DIR = 'generated/dems'
-HEIGHTMAPS_DIR = 'generated/heightmaps'
+MOUNTAIN_DATA_FILENAME = '../generated/mountain_data.json'
+RAW_DEMS_DIR = '../generated/raw_dems'
+DEMS_DIR = '../generated/dems'
+HEIGHTMAPS_DIR = '../generated/heightmaps'
 
 
 def ensure_dirs():
