@@ -119,7 +119,7 @@ export class Scene extends THREE.Scene {
   }
 
   applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry) {
-    const maxHeight = heightmap.getHeight(0, 0);
+    const maxHeight = heightmap.getHeight(0, 0); // approximate max height
     const vertices = geometry.getAttribute('position');
     for (let i = 0; i < vertices.count; i++) {
       const x = vertices.getX(i);

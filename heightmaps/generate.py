@@ -12,6 +12,14 @@ from rasterio.warp import calculate_default_transform, reproject, Resampling
 from PIL import Image
 
 
+HEIGHTMAP_SIZE_PIXELS = 100
+MOUNTAIN_CONFIG_FILENAME = 'mountain_config.json'
+MOUNTAIN_DATA_FILENAME = '../generated/mountain_data.json'
+RAW_DEMS_DIR = '../generated/raw_dems'
+DEMS_DIR = '../generated/dems'
+HEIGHTMAPS_DIR = '../generated/heightmaps'
+
+
 async def fetch_dem(session, dst_filename, center, radius):
     distance = geopy.distance.distance(meters=radius)
     url = 'https://portal.opentopography.org/API/globaldem'
@@ -89,23 +97,13 @@ def resize_heightmap(heightmap, size_pixels):
 
 
 def rescale_elevations(heightmap, size_meters):
-    size_pixels = heightmap.shape[0]
-    pixels_per_meter = size_pixels / size_meters
     elevation_range = np.max(heightmap) - np.min(heightmap)
-    return elevation_range * pixels_per_meter * normalize_heightmap(heightmap)
+    return normalize_heightmap(heightmap) * elevation_range / size_meters
 
 
 def encode_heightmap(heightmap):
     data = base64.b64encode(heightmap)
     return bytes.decode(data)
-
-
-HEIGHTMAP_SIZE = 100
-MOUNTAIN_CONFIG_FILENAME = 'mountain_config.json'
-MOUNTAIN_DATA_FILENAME = '../generated/mountain_data.json'
-RAW_DEMS_DIR = '../generated/raw_dems'
-DEMS_DIR = '../generated/dems'
-HEIGHTMAPS_DIR = '../generated/heightmaps'
 
 
 def ensure_dirs():
@@ -147,7 +145,7 @@ async def main():
     for mountain in mountains:
         reproject_dem(get_raw_dem_filename(mountain), get_dem_filename(mountain))
         heightmap = read_dem(get_dem_filename(mountain))
-        heightmap = resize_heightmap(heightmap, HEIGHTMAP_SIZE)
+        heightmap = resize_heightmap(heightmap, HEIGHTMAP_SIZE_PIXELS)
         heightmap = rescale_elevations(heightmap, mountain['radius'] * 2)
         mountain['heightmap'] = encode_heightmap(heightmap)
         write_image(heightmap, get_heightmap_filename(mountain))

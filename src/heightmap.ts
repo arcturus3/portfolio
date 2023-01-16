@@ -19,7 +19,7 @@ export class Heightmap {
     return this.data[row * this.size + col];
   }
 
-  // bilinearly interpolate height value and scale proportionally width and height
+  // bilinearly interpolate height value and scale to displayed size
   // x, z continuous in [-1, 1]
   getHeight(x: number, z: number) {
     const row = (z + 1) / 2 * (this.size - 1);
@@ -35,7 +35,7 @@ export class Heightmap {
     const t = THREE.MathUtils.lerp(tl, tr, col - leftCol);
     const b = THREE.MathUtils.lerp(bl, br, col - leftCol);
     const height = THREE.MathUtils.lerp(t, b, row - topRow);
-    const normalizedHeight = height * 2 / (this.size - 1);
+    const normalizedHeight = height * 2; // heightmap size is two world units
     return normalizedHeight;
   }
 }

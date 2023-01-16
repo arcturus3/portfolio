@@ -1,6 +1,6 @@
 import Chance from 'chance';
 import { Heightmap } from './heightmap';
-import rawMountainData from '/generated/mountains.json?raw';
+import rawMountainData from '/generated/mountain_data.json?raw';
 
 type BaseMountain = {
   id: string,
