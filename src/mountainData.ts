@@ -8,6 +8,7 @@ type BaseMountain = {
   coords: [number, number],
   elevation: number,
   radius: number,
+  display: boolean,
 };
 
 type RawMountain = BaseMountain & {
@@ -33,7 +34,7 @@ const mountainData: Mountain[] = parsedMountainData.map(mountain => {
     ...mountain,
     heightmap: new Heightmap(array)
   };
-});
+}).filter(mountain => mountain.display);
 
 const chance = new Chance();
 const shuffledMountainData = chance.shuffle(mountainData);
