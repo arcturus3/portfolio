@@ -9,19 +9,19 @@
     "name": "Haleakala",
     "coords": [20.709718, -156.253331],
     "elevation": 3055,
-    "radius": 10000
+    "radius": 500
   },
   {
     "name": "Mauna Kea",
     "coords": [19.820679, -155.468024],
     "elevation": 4205,
-    "radius": 1000
+    "radius": 500
   },
   {
     "name": "Cerro Chirripó",
     "coords": [9.484296, -83.488921],
     "elevation": 3819,
-    "radius": 1000
+    "radius": 500
   },
   {
     "name": "Cowhorn Mountain",
@@ -33,42 +33,48 @@
     "name": "Baldy Mountain",
     "coords": [36.629943, -105.213311],
     "elevation": 3792,
-    "radius": 1000
+    "radius": 1500
   },
   {
     "name": "Mount Washington",
     "coords": [44.270464, -71.303444],
     "elevation": 1917,
-    "radius": 1000
+    "radius": 3000
   },
   {
     "name": "Mount Lafayette",
     "coords": [44.16073, -71.644564],
     "elevation": 1597,
-    "radius": 1000
+    "radius": 2500
   },
   {
     "name": "Rigi Kulm",
     "coords": [47.056667, 8.485278],
     "elevation": 1797,
-    "radius": 1000
+    "radius": 3000
   },
   {
     "name": "Säntis",
     "coords": [47.249476, 9.343154],
     "elevation": 2502,
-    "radius": 1000
+    "radius": 2000
   },
   {
     "name": "Jungfrau",
     "coords": [46.536806, 7.962582],
     "elevation": 4158,
-    "radius": 1000
+    "radius": 5000
   },
   {
     "name": "Rigidalstock",
     "coords": [46.852248, 8.419489],
     "elevation": 2593,
-    "radius": 1000
+    "radius": 2000
+  },
+  {
+    "name": "Titlis",
+    "coords": [46.772092, 8.43775],
+    "elevation": 3238,
+    "radius": 3000
   }
 ]
