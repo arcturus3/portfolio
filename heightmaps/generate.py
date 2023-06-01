@@ -131,16 +131,15 @@ async def main():
         mountains = json.load(file)
 
     async with aiohttp.ClientSession() as session:
-        requests = []
-        for mountain in mountains:
-            request = fetch_dem(
-                session,
-                get_raw_dem_filename(mountain),
-                mountain['coords'],
-                mountain['radius']
-            )
-            requests.append(request)
-        await asyncio.wait(requests)
+        async with asyncio.TaskGroup() as requests:
+            for mountain in mountains:
+                request = fetch_dem(
+                    session,
+                    get_raw_dem_filename(mountain),
+                    mountain['coords'],
+                    mountain['radius']
+                )
+                requests.create_task(request)
 
     for mountain in mountains:
         reproject_dem(get_raw_dem_filename(mountain), get_dem_filename(mountain))
