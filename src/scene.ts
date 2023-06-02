@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Chance from 'chance';
 import {Heightmap} from './heightmap';
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla';
 
 export class Scene extends THREE.Scene {
   terrainGroup!: THREE.Group;
@@ -54,10 +55,20 @@ export class Scene extends THREE.Scene {
       polygonOffsetUnits: 1,
     });
 
+    const testMaterial = new CustomShaderMaterial({
+      baseMaterial: THREE.MeshStandardMaterial,
+      vertexShader: `
+        void main() {
+          csm_Position = position + vec3(0, -1, 0);
+        }
+      `
+    });
+
     const terrainGroup = new THREE.Group();
     terrainGroup.add(new THREE.Points(this.pointsGeometry, pointsMaterial));
     terrainGroup.add(new THREE.Mesh(this.meshGeometry, terrainMaterial));
     terrainGroup.add(new THREE.Mesh(this.meshGeometry, coverMaterial));
+    terrainGroup.add(new THREE.Mesh(this.meshGeometry, testMaterial));
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
