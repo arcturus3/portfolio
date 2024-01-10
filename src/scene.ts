@@ -32,32 +32,65 @@ export class Scene extends THREE.Scene {
     const loader = new THREE.TextureLoader();
     const alphaMap = loader.load('/alpha_map.png');
     // const alphaMap = this.generateAlphaMap();
-    const pointsMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.1,
-      size: 0.001,
-    });
-    const terrainMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      transparent: true,
-      alphaMap: alphaMap,
-      polygonOffset: true,
-      polygonOffsetFactor: 1,
-      polygonOffsetUnits: 1,
-    });
+    // const pointsMaterial = new THREE.PointsMaterial({
+    //   color: 0xffffff,
+    //   transparent: true,
+    //   opacity: 0.1,
+    //   size: 0.001,
+    // });
+    // const terrainMaterial = new THREE.MeshStandardMaterial({
+      // color: 0xffffff,
+      // transparent: true,
+      // alphaMap: alphaMap,
+      // polygonOffset: true,
+      // polygonOffsetFactor: 1,
+      // polygonOffsetUnits: 1,
+    // });
     // to prevent underside of terrain showing due to transparent edges
-    const coverMaterial = new THREE.MeshBasicMaterial({
-      color: 0x101010,
-      polygonOffset: true,
-      polygonOffsetFactor: 2,
-      polygonOffsetUnits: 1,
+    // const coverMaterial = new THREE.MeshBasicMaterial({
+    //   color: 0x101010,
+    //   polygonOffset: true,
+    //   polygonOffsetFactor: 2,
+    //   polygonOffsetUnits: 1,
+    // });
+
+    const terrainMaterial = new THREE.ShaderMaterial({
+      transparent: true,
+      uniforms: {
+        diffuse: {value: [1, 0, 1]},
+        light: {value: [2, 2, 2]},
+      },
+      vertexShader: `
+        varying vec3 frag_position;
+        varying vec3 frag_normal;
+
+        void main() {
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          frag_position = vec3(gl_Position);
+          frag_normal = normal;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 diffuse;
+        uniform vec3 light;
+        varying vec3 frag_position;
+        varying vec3 frag_normal;
+
+        void main() {
+          // vec3 light_ray = normalize(light - frag_position);
+          vec3 light_ray = normalize(vec3(2, 2, 2));
+          float intensity = max(0.0, dot(frag_normal, light_ray));
+          float opacity = 1.0 - 1.0 / length(vec2(frag_position.x, frag_position.z));
+          gl_FragColor = vec4(0.5 * intensity * diffuse, opacity);
+        }
+      `
     });
 
     const terrainGroup = new THREE.Group();
-    terrainGroup.add(new THREE.Points(this.pointsGeometry, pointsMaterial));
+    // terrainGroup.add(new THREE.Points(this.pointsGeometry, pointsMaterial));
+    this.meshGeometry.computeVertexNormals();
     terrainGroup.add(new THREE.Mesh(this.meshGeometry, terrainMaterial));
-    terrainGroup.add(new THREE.Mesh(this.meshGeometry, coverMaterial));
+    // terrainGroup.add(new THREE.Mesh(this.meshGeometry, coverMaterial));
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
