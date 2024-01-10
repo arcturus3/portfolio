@@ -55,10 +55,13 @@ export class Scene extends THREE.Scene {
     // });
 
     const terrainMaterial = new THREE.ShaderMaterial({
-      transparent: true,
+      // transparent: true,
       uniforms: {
-        diffuse: {value: [1, 0, 1]},
+        diffuse: {value: [1, 1, 1]},
+        background: {value: [0.0627, 0.0627, 0.0627]},
+        // background: {value: [1, 0, 0]},
         light: {value: [2, 2, 2]},
+
       },
       vertexShader: `
         varying vec3 frag_position;
@@ -66,22 +69,39 @@ export class Scene extends THREE.Scene {
 
         void main() {
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          frag_position = vec3(gl_Position);
+          frag_position = vec3(position);
           frag_normal = normal;
         }
       `,
       fragmentShader: `
         uniform vec3 diffuse;
+        uniform vec3 background;
         uniform vec3 light;
         varying vec3 frag_position;
         varying vec3 frag_normal;
+
+        float rand(vec2 co){
+          return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
+        float get_opacity(vec3 position) {
+          const float threshold = 0.5;
+          float radius = clamp(length(vec2(position.x, position.z)), 0.0, 1.0);
+          if (radius <= threshold)
+            return 1.0;
+          else
+            return 1.0 - smoothstep(threshold, 1.0, radius) + mix(-2.5/255.0, 2.5/255.0, rand(vec2(position.x, position.z))); // dithering
+        }
 
         void main() {
           // vec3 light_ray = normalize(light - frag_position);
           vec3 light_ray = normalize(vec3(2, 2, 2));
           float intensity = max(0.0, dot(frag_normal, light_ray));
-          float opacity = 1.0 - 1.0 / length(vec2(frag_position.x, frag_position.z));
-          gl_FragColor = vec4(0.5 * intensity * diffuse, opacity);
+          float half_lambert_intensity = pow(0.5 * intensity + 0.5, 2.0);
+          // vec3 lit_diffuse = intensity * diffuse;
+          vec3 lit_diffuse = half_lambert_intensity * diffuse;
+          vec3 color = mix(background, lit_diffuse, get_opacity(frag_position));
+          gl_FragColor = vec4(color, 1.0);
         }
       `
     });
