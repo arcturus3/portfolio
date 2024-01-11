@@ -15,7 +15,7 @@ export class Scene extends THREE.Scene {
   targetMeshGeometry!: THREE.BufferGeometry;
   morphFactor = 1;
 
-  pointCount = 50000;
+  pointCount = 200000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
   alphaMapSize = 1000;
   rotationTimeSeconds = 60;
@@ -97,11 +97,12 @@ export class Scene extends THREE.Scene {
           // vec3 light_ray = normalize(light - frag_position);
           vec3 light_ray = normalize(vec3(2, 2, 2));
           float intensity = max(0.0, dot(frag_normal, light_ray));
-          float half_lambert_intensity = pow(0.5 * intensity + 0.5, 2.0);
+          float half_lambert_intensity = 0.1 * pow(0.5 * intensity + 0.5, 2.0);
           // vec3 lit_diffuse = intensity * diffuse;
           // vec3 lit_diffuse = intensity * (frag_normal.y < 0.5 ? vec3(0.0, 0.0, 0.0) : diffuse);
           // vec3 lit_diffuse = half_lambert_intensity * mix(vec3(0.0, 0.0, 0.0), diffuse, frag_normal.y);
-          vec3 lit_diffuse = half_lambert_intensity * (frag_normal.y < 0.75 ? 4. * background : diffuse);
+          // vec3 lit_diffuse = half_lambert_intensity * (frag_normal.y < 0.75 ? 4. * background : diffuse);
+          vec3 lit_diffuse = half_lambert_intensity * diffuse;
           vec3 color = mix(background, lit_diffuse, get_opacity(frag_position));
           gl_FragColor = vec4(color, 1.0);
         }
@@ -227,7 +228,7 @@ export class Scene extends THREE.Scene {
       const a = new THREE.Vector3(epsilon, heightmap.getHeight(x + epsilon, z) - heightmap.getHeight(x, z), 0);
       const b = new THREE.Vector3(0, heightmap.getHeight(x, z + epsilon) - heightmap.getHeight(x, z), epsilon);
       const normal = new THREE.Vector3().crossVectors(b, a).normalize();
-      return normal.y;
+      return normal.y ** 6;
     }
 
     const position = points.getAttribute('position');
