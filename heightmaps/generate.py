@@ -12,7 +12,7 @@ from rasterio.warp import calculate_default_transform, reproject, Resampling
 from PIL import Image
 
 
-HEIGHTMAP_SIZE_PIXELS = 100
+HEIGHTMAP_SIZE_PIXELS = 200
 MOUNTAIN_CONFIG_FILENAME = 'mountain_config.json'
 MOUNTAIN_DATA_FILENAME = '../generated/mountain_data.json'
 RAW_DEMS_DIR = '../generated/raw_dems'

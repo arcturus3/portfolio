@@ -16,7 +16,7 @@ export class Scene extends THREE.Scene {
   morphFactor = 1;
 
   pointCount = 50000;
-  meshSize = 99; // one less than heightmap size for exact vertex positions
+  meshSize = 199; // one less than heightmap size for exact vertex positions
   alphaMapSize = 1000;
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
@@ -99,7 +99,9 @@ export class Scene extends THREE.Scene {
           float intensity = max(0.0, dot(frag_normal, light_ray));
           float half_lambert_intensity = pow(0.5 * intensity + 0.5, 2.0);
           // vec3 lit_diffuse = intensity * diffuse;
-          vec3 lit_diffuse = half_lambert_intensity * diffuse;
+          // vec3 lit_diffuse = intensity * (frag_normal.y < 0.5 ? vec3(0.0, 0.0, 0.0) : diffuse);
+          // vec3 lit_diffuse = half_lambert_intensity * mix(vec3(0.0, 0.0, 0.0), diffuse, frag_normal.y);
+          vec3 lit_diffuse = half_lambert_intensity * (frag_normal.y < 0.75 ? 4. * background : diffuse);
           vec3 color = mix(background, lit_diffuse, get_opacity(frag_position));
           gl_FragColor = vec4(color, 1.0);
         }
