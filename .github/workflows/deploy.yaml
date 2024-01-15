@@ -16,9 +16,9 @@ jobs:
           python-version: '3.11'
           cache: pip
       - run: pip install -r requirements.txt
-      - env:
-          open-topography-api-key: ${{ secrets.OPEN_TOPOGRAPHY_API_KEY }}
-        run: (cd heightmaps && python generate.py)
+      - run: (cd heightmaps && python generate.py)
+        env:
+          OPEN_TOPOGRAPHY_API_KEY: ${{ secrets.OPEN_TOPOGRAPHY_API_KEY }}
       - uses: actions/upload-artifact@v4
         with:
           name: heightmaps
