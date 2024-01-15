@@ -31,7 +31,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: heightmaps
-      - run: ls -R
+          path: generated
       - uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -49,6 +49,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: dist
+          path: dist
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
