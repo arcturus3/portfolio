@@ -1,0 +1,51 @@
+on:
+  push:
+    tags:
+      - **
+
+jobs:
+  build-heightmaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: pip
+      - run: pip install -r requirements.txt
+      - env:
+          open-topography-api-key: ${{ secrets.OPEN_TOPOGRAPHY_API_KEY }}
+        run: (cd heightmaps && python generate.py)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heightmaps
+          path: generated
+  build-site:
+    needs: [build-heightmaps]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: heightmaps
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm install
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+  deploy:
+    needs: [build-site]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
