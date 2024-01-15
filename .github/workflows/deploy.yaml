@@ -31,6 +31,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: heightmaps
+      - run: ls -R
       - uses: actions/setup-node@v4
         with:
           node-version: 18
