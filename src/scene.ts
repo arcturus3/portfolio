@@ -20,7 +20,7 @@ export class Scene extends THREE.Scene {
   targetMeshGeometry!: THREE.BufferGeometry;
   morphFactor = 1;
 
-  pointCount = 300000;
+  pointCount = 200000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
@@ -116,7 +116,7 @@ export class Scene extends THREE.Scene {
       const a = new THREE.Vector3(epsilon, heightmap.getHeight(x + epsilon, z) - heightmap.getHeight(x, z), 0);
       const b = new THREE.Vector3(0, heightmap.getHeight(x, z + epsilon) - heightmap.getHeight(x, z), epsilon);
       const normal = new THREE.Vector3().crossVectors(b, a).normalize();
-      return normal.y ** 8;
+      return normal.y ** 6;
     }
 
     const position = points.getAttribute('position');
