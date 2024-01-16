@@ -15,7 +15,7 @@ export class Scene extends THREE.Scene {
   targetMeshGeometry!: THREE.BufferGeometry;
   morphFactor = 1;
 
-  pointCount = 200000;
+  pointCount = 300000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
   alphaMapSize = 1000;
   rotationTimeSeconds = 60;
@@ -26,6 +26,9 @@ export class Scene extends THREE.Scene {
     this.generateMeshGeometry();
     this.generatePointsGeometry();
     this.buildScene();
+
+    this.background = new THREE.Color(0x101010);
+    this.fog = new THREE.Fog(0x101010, 1, 2);
   }
 
   buildScene() {
@@ -60,25 +63,28 @@ export class Scene extends THREE.Scene {
         diffuse: {value: [1, 1, 1]},
         background: {value: [0.0627, 0.0627, 0.0627]},
         // background: {value: [1, 0, 0]},
-        light: {value: [2, 2, 2]},
+        light: {value: [1, 2, 2]},
 
       },
       vertexShader: `
-        varying vec3 frag_position;
-        varying vec3 frag_normal;
+        varying vec3 modelPosition;
+        varying vec3 viewPosition;
+        varying vec3 viewNormal;
 
         void main() {
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          frag_position = vec3(position);
-          frag_normal = normal;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+          modelPosition = vec3(modelMatrix * vec4(position, 1.));
+          viewPosition = vec3(modelViewMatrix * vec4(position, 1.));
+          viewNormal = normalMatrix * normal;
         }
       `,
       fragmentShader: `
         uniform vec3 diffuse;
         uniform vec3 background;
         uniform vec3 light;
-        varying vec3 frag_position;
-        varying vec3 frag_normal;
+        varying vec3 modelPosition;
+        varying vec3 viewPosition;
+        varying vec3 viewNormal;
 
         float rand(vec2 co){
           return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -94,16 +100,13 @@ export class Scene extends THREE.Scene {
         }
 
         void main() {
-          // vec3 light_ray = normalize(light - frag_position);
-          vec3 light_ray = normalize(vec3(2, 2, 2));
-          float intensity = max(0.0, dot(frag_normal, light_ray));
+          // vec3 light_ray = normalize(light - modelPosition);
+          vec3 light_pos = normalize(vec3(1, 1, 1));
+          float intensity = max(0.0, dot(viewNormal, light_pos));
           float half_lambert_intensity = 0.1 * pow(0.5 * intensity + 0.5, 2.0);
-          // vec3 lit_diffuse = intensity * diffuse;
-          // vec3 lit_diffuse = intensity * (frag_normal.y < 0.5 ? vec3(0.0, 0.0, 0.0) : diffuse);
-          // vec3 lit_diffuse = half_lambert_intensity * mix(vec3(0.0, 0.0, 0.0), diffuse, frag_normal.y);
-          // vec3 lit_diffuse = half_lambert_intensity * (frag_normal.y < 0.75 ? 4. * background : diffuse);
-          vec3 lit_diffuse = half_lambert_intensity * diffuse;
-          vec3 color = mix(background, lit_diffuse, get_opacity(frag_position));
+          vec3 lit_diffuse = 0.1 * intensity * diffuse;
+          // vec3 lit_diffuse = half_lambert_intensity * diffuse;
+          vec3 color = mix(background, lit_diffuse, get_opacity(modelPosition));
           gl_FragColor = vec4(color, 1.0);
         }
       `
@@ -122,6 +125,7 @@ export class Scene extends THREE.Scene {
 
         void main() {
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          // gl_PointSize = 1.5;
           frag_position = vec3(position);
           frag_opacity = opacity;
         }
@@ -140,13 +144,14 @@ export class Scene extends THREE.Scene {
     const terrainGroup = new THREE.Group();
     terrainGroup.add(new THREE.Points(this.pointsGeometry, pointsMaterial));
     this.meshGeometry.computeVertexNormals();
+    // terrainGroup.add(new THREE.Mesh(this.meshGeometry, new THREE.MeshStandardMaterial()));
     terrainGroup.add(new THREE.Mesh(this.meshGeometry, terrainMaterial));
     // terrainGroup.add(new THREE.Mesh(this.meshGeometry, coverMaterial));
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.025);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.01);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.01);
     directionalLight.position.set(2, 1, 0);
     this.add(ambientLight, directionalLight);
   }
@@ -228,7 +233,7 @@ export class Scene extends THREE.Scene {
       const a = new THREE.Vector3(epsilon, heightmap.getHeight(x + epsilon, z) - heightmap.getHeight(x, z), 0);
       const b = new THREE.Vector3(0, heightmap.getHeight(x, z + epsilon) - heightmap.getHeight(x, z), epsilon);
       const normal = new THREE.Vector3().crossVectors(b, a).normalize();
-      return normal.y ** 6;
+      return normal.y ** 8;
     }
 
     const position = points.getAttribute('position');

@@ -21,12 +21,12 @@ export class Renderer {
       canvas: canvas,
       antialias: true,
     });
-    this.renderer.setClearColor(0x101010);
+    // this.renderer.setPixelRatio(window.devicePixelRatio * 1.5);
 
     const camera = new THREE.PerspectiveCamera();
     camera.near = 0.01;
-    camera.position.set(0, 0.6, 2.3);
-    camera.lookAt(new THREE.Vector3(0, -0.25, 0));
+    camera.position.set(0, 0.3, 1);
+    camera.lookAt(new THREE.Vector3(0, -0.1, 0));
     this.camera = camera;
 
     this.stats = new Stats();
