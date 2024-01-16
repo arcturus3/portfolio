@@ -27,4 +27,7 @@ void main() {
     // vec3 lit_diffuse = half_lambert_intensity * diffuse;
     vec3 color = mix(background, lit_diffuse, get_opacity(modelPosition));
     gl_FragColor = vec4(color, 1.0);
+    if (!gl_FrontFacing) {
+        gl_FragColor = vec4(background, 1.);
+    }
 }

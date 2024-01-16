@@ -36,6 +36,7 @@ export class Scene extends THREE.Scene {
 
   buildScene() {
     const terrainMaterial = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
       uniforms: {
         diffuse: {value: [1, 1, 1]},
         background: {value: [0.0627, 0.0627, 0.0627]},
@@ -89,13 +90,13 @@ export class Scene extends THREE.Scene {
     this.pointsGeometry = geometry;
   }
 
-  applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry) {
+  applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry, offset: number) {
     const maxHeight = heightmap.getHeight(0, 0); // approximate max height
     const position = geometry.getAttribute('position');
     for (let i = 0; i < position.count; i++) {
       const x = position.getX(i);
       const z = position.getZ(i);
-      const y = heightmap.getHeight(x, z) - maxHeight;
+      const y = heightmap.getHeight(x, z) - maxHeight + offset;
       position.setY(i, y);
     }
     position.needsUpdate = true;
@@ -138,8 +139,8 @@ export class Scene extends THREE.Scene {
     this.targetMeshGeometry = this.meshGeometry.clone();
     this.originPointsGeometry = this.pointsGeometry.clone();
     this.targetPointsGeometry = this.pointsGeometry.clone();
-    this.applyHeightmap(heightmap, this.targetMeshGeometry);
-    this.applyHeightmap(heightmap, this.targetPointsGeometry);
+    this.applyHeightmap(heightmap, this.targetMeshGeometry, 0);
+    this.applyHeightmap(heightmap, this.targetPointsGeometry, 0.002);
     this.applyHeightmapOpacities(heightmap, this.targetPointsGeometry);
     return true;
   }
