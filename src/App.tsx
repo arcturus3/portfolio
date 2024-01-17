@@ -40,7 +40,7 @@ export const App = () => {
     <>
       <canvas
         ref={canvasRef}
-        className='fixed w-screen h-screen'
+        className='fixed w-full h-full'
       />
       <div className='w-full h-full max-w-6xl p-8 mx-auto'>
         <div className='w-full h-full relative'>
