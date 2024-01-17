@@ -11,7 +11,7 @@ export class Renderer {
   camera;
   stats;
 
-  constructor(canvas: HTMLCanvasElement, scene: Scene, debug=true) {
+  constructor(canvas: HTMLCanvasElement, scene: Scene, debug=false) {
     this.render = this.render.bind(this);
     this.resize = this.resize.bind(this);
 
