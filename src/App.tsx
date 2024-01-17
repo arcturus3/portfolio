@@ -50,13 +50,13 @@ export const App = () => {
             <br />
             <span className='font-sans text-base'>
               {[
-                "Hi, I'm studying computer science at Princeton University.",
-                "I'm passionate about building things with code.",
-                "I'm especially interested in web apps, games, machine learning, and robotics.",
-                "I love the outdoors; these are some of my favorite mountains.",
+                "Hi, I'm a computer science student at Princeton University and an incoming software engineer at SpaceX.",
+                "I'm passionate about building things that excite me, usually with code.",
+                "I'm especially interested in web apps, graphics, machine learning, and robotics.",
+                "I love the outdoors; this is a collection of some mountains that I've hiked, camped, or skied on.",
               ].map((line, i) => (
                 <div key={i}>
-                  <span className='opacity-100 whitespace-pre'>&gt;  </span>
+                  <span className='opacity-100 whitespace-pre'>- </span>
                   <span className='opacity-75'>{line}</span>
                 </div>
               ))}

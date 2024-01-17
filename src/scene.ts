@@ -20,7 +20,7 @@ export class Scene extends THREE.Scene {
   targetMeshGeometry!: THREE.BufferGeometry;
   morphFactor = 1;
 
-  pointCount = 200000;
+  pointCount = 100000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
