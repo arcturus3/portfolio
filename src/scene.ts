@@ -168,7 +168,7 @@ export class Scene extends THREE.Scene {
   }
 
   update(deltaSeconds: number) {
-    const angle = 2 * Math.PI * deltaSeconds / this.rotationTimeSeconds;
+    const angle = 2 * Math.PI * .01 / this.rotationTimeSeconds;
     this.terrainGroup.rotateY(angle);
 
     if (this.morphFactor < 1) {

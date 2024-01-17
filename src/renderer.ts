@@ -11,7 +11,7 @@ export class Renderer {
   camera;
   stats;
 
-  constructor(canvas: HTMLCanvasElement, scene: Scene, debug=false) {
+  constructor(canvas: HTMLCanvasElement, scene: Scene, debug=true) {
     this.render = this.render.bind(this);
     this.resize = this.resize.bind(this);
 
@@ -22,10 +22,11 @@ export class Renderer {
       antialias: true,
     });
     this.renderer.setClearColor(0x101010);
+    // this.renderer.setPixelRatio(window.devicePixelRatio);
 
     const camera = new THREE.PerspectiveCamera();
     camera.near = 0.01;
-    camera.position.set(0, 0.6, 2.3);
+    camera.position.set(0, 0.5, 1.5);
     camera.lookAt(new THREE.Vector3(0, -0.25, 0));
     this.camera = camera;
 
