@@ -8,25 +8,27 @@ import pointsVertexShader from './pointsVertex.glsl?raw';
 import pointsFragmentShader from './pointsFragment.glsl?raw';
 
 export class Scene extends THREE.Scene {
+  heightmaps!: Heightmap[];
+
   terrainGroup!: THREE.Group;
   pointsGeometry!: THREE.BufferGeometry;
   meshGeometry!: THREE.BufferGeometry;
-
-  // maintain start and end geometries for morphing
-  // interpolating heightmap and heights at each step is rather slow
-  originPointsGeometry!: THREE.BufferGeometry;
-  targetPointsGeometry!: THREE.BufferGeometry;
-  originMeshGeometry!: THREE.BufferGeometry;
-  targetMeshGeometry!: THREE.BufferGeometry;
-  morphFactor = 1;
-
+  mesh!: THREE.Mesh;
+  
   pointCount = 100000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
   rotationTimeSeconds = 60;
   morphTimeSeconds = 2;
+  
+  index = 0;
+  morphProgress = 1;
+  morphInfluences!: number[];
 
-  constructor() {
+  constructor(heightmaps: Heightmap[]) {
     super();
+
+    this.heightmaps = heightmaps;
+
     this.generateMeshGeometry();
     this.generatePointsGeometry();
     this.buildScene();
@@ -35,17 +37,19 @@ export class Scene extends THREE.Scene {
   }
 
   buildScene() {
-    const terrainMaterial = new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
-      uniforms: {
-        diffuse: {value: [1, 1, 1]},
-        background: {value: [0.0627, 0.0627, 0.0627]},
-        light: {value: [1, 2, 2]},
+    // const terrainMaterial = new THREE.ShaderMaterial({
+    //   side: THREE.DoubleSide,
+    //   uniforms: {
+    //     diffuse: {value: [1, 1, 1]},
+    //     background: {value: [0.0627, 0.0627, 0.0627]},
+    //     light: {value: [1, 2, 2]},
 
-      },
-      vertexShader: terrainVertexShader,
-      fragmentShader: terrainFragmentShader
-    });
+    //   },
+    //   vertexShader: terrainVertexShader,
+    //   fragmentShader: terrainFragmentShader
+    // });
+
+    const terrainMaterial = new THREE.MeshStandardMaterial()
 
     const pointsMaterial = new THREE.ShaderMaterial({
       transparent: true,
@@ -60,15 +64,36 @@ export class Scene extends THREE.Scene {
     const terrainGroup = new THREE.Group();
     terrainGroup.add(new THREE.Points(this.pointsGeometry, pointsMaterial));
     this.meshGeometry.computeVertexNormals();
-    terrainGroup.add(new THREE.Mesh(this.meshGeometry, terrainMaterial));
+    this.mesh = new THREE.Mesh(this.meshGeometry, terrainMaterial);
+    terrainGroup.add(this.mesh);
     this.add(terrainGroup);
     this.terrainGroup = terrainGroup;
+
+    this.morphInfluences = Array(this.heightmaps.length).fill(0);
+    this.morphInfluences[0] = 1;
+    this.mesh.morphTargetInfluences = this.morphInfluences;
+
+    // this.applyHeightmapOpacities(this.heightmaps[this.index], this.targetPointsGeometry);
   }
 
   generateMeshGeometry() {
     const geometry = new THREE.PlaneGeometry(2, 2, this.meshSize, this.meshSize);
     geometry.rotateX(-Math.PI / 2);
     geometry.translate(0, -0.5, 0);
+
+    // geometry.morphAttributes = Object.fromEntries(
+    //   this.heightmaps.map((heightmap, index) => [
+    //     index,
+    //     [this.getPositionFromHeightmap(heightmap, geometry.getAttribute('position') as THREE.BufferAttribute, 0)]
+    //   ])
+    // );
+
+    geometry.morphAttributes = {
+      position: this.heightmaps.map(heightmap => this.getPositionFromHeightmap(heightmap, geometry.getAttribute('position') as THREE.BufferAttribute, 0))
+    };
+
+    // geometry.setAttribute('position', this.getPositionFromHeightmap(this.heightmaps[0], geometry.getAttribute('position') as THREE.BufferAttribute, 0));
+
     this.meshGeometry = geometry;
   }
 
@@ -87,22 +112,28 @@ export class Scene extends THREE.Scene {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', position);
     geometry.setAttribute('opacity', opacity);
+
+    geometry.morphAttributes = {
+      position: this.heightmaps.map(heightmap => this.getPositionFromHeightmap(heightmap, geometry.getAttribute('position') as THREE.BufferAttribute, 0.002))
+    };
+
     this.pointsGeometry = geometry;
   }
 
-  applyHeightmap(heightmap: Heightmap, geometry: THREE.BufferGeometry, offset: number) {
+  getPositionFromHeightmap(heightmap: Heightmap, planePosition: THREE.BufferAttribute, offset: number): THREE.BufferAttribute {
     const maxHeight = heightmap.getHeight(0, 0); // approximate max height
-    const position = geometry.getAttribute('position');
-    for (let i = 0; i < position.count; i++) {
-      const x = position.getX(i);
-      const z = position.getZ(i);
+    const positionBuffer = new Float32Array(planePosition.count * 3);
+    const position = new THREE.BufferAttribute(positionBuffer, 3);
+    for (let i = 0; i < planePosition.count; i++) {
+      const x = planePosition.getX(i);
+      const z = planePosition.getZ(i);
       const y = heightmap.getHeight(x, z) - maxHeight + offset;
-      position.setY(i, y);
+      position.setXYZ(i, x, y, z);
     }
-    position.needsUpdate = true;
+    return position;
   }
 
-  applyHeightmapOpacities(heightmap: Heightmap, points: THREE.BufferGeometry) {
+  getOpacityFromHeightmap(heightmap: Heightmap, planePosition: THREE.BufferAttribute): THREE.BufferAttribute {
     const getOpacity = (x: number, z: number) => {
       const threshold = 0.5;
       const radius = Math.min(Math.hypot(x, z), 1);
@@ -120,66 +151,43 @@ export class Scene extends THREE.Scene {
       return normal.y ** 6;
     }
 
-    const position = points.getAttribute('position');
-    const opacity = points.getAttribute('opacity');
-    for (let i = 0; i < position.count; i++) {
-      const x = position.getX(i);
-      const z = position.getZ(i);
+    const opacityBuffer = new Float32Array(planePosition.count);
+    const opacity = new THREE.BufferAttribute(opacityBuffer, 1);
+    for (let i = 0; i < planePosition.count; i++) {
+      const x = planePosition.getX(i);
+      const z = planePosition.getZ(i);
       opacity.setX(i, getOpacity(x, z) * getSlope(x, z));
     }
-    opacity.needsUpdate = true;
+    return opacity;
   }
 
-  setHeightmap(heightmap: Heightmap) {
-    if (this.morphFactor < 1) {
+  setHeightmap(index: number) {
+    if (this.morphProgress < 1) {
       return false;
     }
-    this.morphFactor = 0;
-    this.originMeshGeometry = this.meshGeometry.clone();
-    this.targetMeshGeometry = this.meshGeometry.clone();
-    this.originPointsGeometry = this.pointsGeometry.clone();
-    this.targetPointsGeometry = this.pointsGeometry.clone();
-    this.applyHeightmap(heightmap, this.targetMeshGeometry, 0);
-    this.applyHeightmap(heightmap, this.targetPointsGeometry, 0.002);
-    this.applyHeightmapOpacities(heightmap, this.targetPointsGeometry);
+    this.morphProgress = 0;
+    this.index = index;
+    console.log(this.index)
     return true;
   }
 
-  lerpVertices(out: THREE.BufferGeometry, origin: THREE.BufferGeometry, target: THREE.BufferGeometry, factor: number) {
-    const outPosition = out.getAttribute('position');
-    const originPosition = origin.getAttribute('position');
-    const targetPosition = target.getAttribute('position');
-    for (let i = 0; i < outPosition.count; i++) {
-      outPosition.setX(i, THREE.MathUtils.lerp(originPosition.getX(i), targetPosition.getX(i), factor));
-      outPosition.setY(i, THREE.MathUtils.lerp(originPosition.getY(i), targetPosition.getY(i), factor));
-      outPosition.setZ(i, THREE.MathUtils.lerp(originPosition.getZ(i), targetPosition.getZ(i), factor));
-    }
-    outPosition.needsUpdate = true;
-  }
+  updateMorphInfluences(dt: number) {
+    this.morphProgress = Math.min(1, this.morphProgress + dt / this.morphTimeSeconds);
+    const morphInfluence = THREE.MathUtils.smootherstep(this.morphProgress, 0, 1);
+    const currIndex = this.index;
+    const lastIndex = (this.heightmaps.length + currIndex - 1) % this.heightmaps.length;
+    this.morphInfluences[lastIndex] = 1 - morphInfluence;
+    this.morphInfluences[currIndex] = morphInfluence;
 
-  lerpVerticesOpacities(out: THREE.BufferGeometry, origin: THREE.BufferGeometry, target: THREE.BufferGeometry, factor: number) {
-    const outOpacity = out.getAttribute('opacity');
-    const originOpacity = origin.getAttribute('opacity');
-    const targetOpacity = target.getAttribute('opacity');
-    for (let i = 0; i < outOpacity.count; i++) {
-      outOpacity.setX(i, THREE.MathUtils.lerp(originOpacity.getX(i), targetOpacity.getX(i), factor));
-    }
-    outOpacity.needsUpdate = true;
+    this.mesh.morphTargetInfluences = this.morphInfluences;
+    // this.mesh.updateMorphTargets();
   }
 
   update(deltaSeconds: number) {
     const angle = 2 * Math.PI * .01 / this.rotationTimeSeconds;
     this.terrainGroup.rotateY(angle);
 
-    if (this.morphFactor < 1) {
-      this.morphFactor += deltaSeconds / this.morphTimeSeconds;
-      this.morphFactor = Math.min(1, this.morphFactor);
-      const smoothedFactor = THREE.MathUtils.smootherstep(this.morphFactor, 0, 1);
-      this.lerpVertices(this.meshGeometry, this.originMeshGeometry, this.targetMeshGeometry, smoothedFactor);
-      this.lerpVertices(this.pointsGeometry, this.originPointsGeometry, this.targetPointsGeometry, smoothedFactor);
-      this.lerpVerticesOpacities(this.pointsGeometry, this.originPointsGeometry, this.targetPointsGeometry, smoothedFactor);
-      this.meshGeometry.computeVertexNormals();
-      this.meshGeometry.normalizeNormals();
-    }
+    this.updateMorphInfluences(deltaSeconds);
+    // this.mesh.updateMorphTargets();
   }
 }
