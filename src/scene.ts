@@ -11,6 +11,7 @@ export class Scene extends THREE.Scene {
   mesh!: THREE.Mesh;
   points!: THREE.Points;
   prevHeightmap!: Heightmap;
+  pointPlanePosition!: THREE.BufferAttribute;
   
   pointCount = 100000;
   meshSize = 199; // one less than heightmap size for exact vertex positions
@@ -22,6 +23,15 @@ export class Scene extends THREE.Scene {
     super();
     this.background = new THREE.Color(0x101010);
     this.prevHeightmap = initialHeightmap;
+
+    const chance = new Chance();
+    this.pointPlanePosition = new THREE.BufferAttribute(new Float32Array(this.pointCount * 3), 3);
+    for (let i = 0; i < this.pointCount; i++) {
+      const x = chance.floating({min: -1, max: 1});
+      const z = chance.floating({min: -1, max: 1});
+      this.pointPlanePosition.setXYZ(i, x, 0, z);
+    }
+
     this.setHeightmap(initialHeightmap);
   }
 
@@ -66,17 +76,14 @@ export class Scene extends THREE.Scene {
       return normal.y ** 6;
     };
 
-    const chance = new Chance();
     const geometry = new THREE.BufferGeometry();
-    const planePosition = new THREE.BufferAttribute(new Float32Array(this.pointCount * 3), 3);
+    const position = this.getPositionFromHeightmap(heightmap, this.pointPlanePosition, 0.002);
     const opacity = new THREE.BufferAttribute(new Float32Array(this.pointCount), 1);
     for (let i = 0; i < this.pointCount; i++) {
-      const x = chance.floating({min: -1, max: 1});
-      const z = chance.floating({min: -1, max: 1});
-      planePosition.setXYZ(i, x, 0, z);
+      const x = this.pointPlanePosition.getX(i);
+      const z = this.pointPlanePosition.getZ(i);
       opacity.setX(i, getOpacity(x, z) * getSlope(x, z));
     }
-    const position = this.getPositionFromHeightmap(heightmap, planePosition, 0.002);
     geometry.setAttribute('position', position);
     geometry.setAttribute('opacity', opacity);
     return geometry;
@@ -94,13 +101,9 @@ export class Scene extends THREE.Scene {
       vertexShader: meshVertexShader,
       fragmentShader: meshFragmentShader
     });
-    // const geometry = new THREE.BufferGeometry();
     const geometry = finalGeometry.clone();
     geometry.setAttribute('initialPosition', initialGeometry.getAttribute('position'));
     geometry.setAttribute('initialNormal', initialGeometry.getAttribute('normal'));
-    // geometry.setAttribute('position', finalGeometry.getAttribute('position'));
-    // geometry.setAttribute('normal', finalGeometry.getAttribute('normal'));
-    // return new THREE.Mesh(finalGeometry, new THREE.MeshBasicMaterial({color: 'white', wireframe: true}));
     return new THREE.Mesh(geometry, material);
   }
 
@@ -108,17 +111,16 @@ export class Scene extends THREE.Scene {
     const material = new THREE.ShaderMaterial({
       transparent: true,
       uniforms: {
+        morphInfluence: {value: 0},
         diffuse: {value: [1, 1, 1]},
         background: {value: [0.0627, 0.0627, 0.0627]},
       },
       vertexShader: pointsVertexShader,
       fragmentShader: pointsFragmentShader
     });
-    const geometry = new THREE.BufferGeometry();
+    const geometry = finalGeometry.clone();
     geometry.setAttribute('initialPosition', initialGeometry.getAttribute('position'));
     geometry.setAttribute('initialOpacity', initialGeometry.getAttribute('opacity'));
-    geometry.setAttribute('position', finalGeometry.getAttribute('position'));
-    geometry.setAttribute('opacity', finalGeometry.getAttribute('opacity'));
     return new THREE.Points(geometry, material);
   }
 
@@ -132,13 +134,14 @@ export class Scene extends THREE.Scene {
     this.remove(this.mesh);
     this.add(mesh);
     this.mesh = mesh;
+    const points = this.generatePoints(
+      this.generatePointsGeometry(this.prevHeightmap),
+      this.generatePointsGeometry(heightmap)
+    );
+    this.remove(this.points);
+    this.add(points);
+    this.points = points;
     this.prevHeightmap = heightmap;
-    // const points = this.generatePoints(
-    //   this.generatePointsGeometry(this.prevHeightmap),
-    //   this.generatePointsGeometry(heightmap)
-    // );
-    // this.points = points;
-    // this.add(points);
     return true;
   }
 
@@ -149,5 +152,7 @@ export class Scene extends THREE.Scene {
     const morphInfluence = THREE.MathUtils.smootherstep(this.morphProgress, 0, 1);
     this.mesh.material.uniforms.morphInfluence.value = morphInfluence;
     this.mesh.material.uniformsNeedUpdate = true;
+    this.points.material.uniforms.morphInfluence.value = morphInfluence;
+    this.points.material.uniformsNeedUpdate = true;
   }
 }
