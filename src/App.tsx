@@ -16,7 +16,7 @@ export const App = () => {
 
   const updateMountain = () => {
     const nextIndex = (mountainIndexRef.current + 1) % mountainData.length;
-    const success = sceneRef.current!.setHeightmap(nextIndex);
+    const success = sceneRef.current!.setHeightmap(mountainData[nextIndex].heightmap);
     if (success) {
       setMountainIndex(nextIndex);
       window.clearTimeout(timeoutIdRef.current);
@@ -25,7 +25,7 @@ export const App = () => {
   };
 
   useEffect(() => {
-    const scene = new Scene(mountainData.map(mountain => mountain.heightmap));
+    const scene = new Scene(mountainData[0].heightmap);
     sceneRef.current = scene;
     const renderer = new Renderer(canvasRef.current!, scene);
     renderer.render();
